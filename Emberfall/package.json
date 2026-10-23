@@ -1,0 +1,14 @@
+{
+  "name": "emberfall",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Оригинальная браузерная MOBA: автономная игра и авторитетные сетевые комнаты",
+  "engines": { "node": ">=22.13.0" },
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node server/node-server.mjs --port 4173",
+    "start:lan": "node server/node-server.mjs --host 0.0.0.0 --port 4173",
+    "pretest": "node build.mjs",
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b1418">
+  <meta name="description" content="Emberfall — оригинальная MOBA: шесть героев, три линии, сражения 5 на 5. Играйте против ботов без интернета или соберите друзей в сетевой комнате.">
+  <title>EMBERFALL — Битва за Исток</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23ddb66d' d='M32 2 59 32 32 62 5 32Z'/%3E%3Cpath fill='%23142024' d='m32 13 14 20-14 18-14-18Z'/%3E%3Cpath fill='%2377d9b6' d='m34 20-13 16h11l-2 10 14-17H33Z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="world" aria-label="Поле сражения Emberfall"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <div id="boot" class="boot"><div class="brand-mark">◈</div><p>Пробуждаем Исток…</p></div>
+  <section id="lobby" class="lobby" hidden>
+    <header class="lobby-header">
+      <a class="brand" href="#" aria-label="Emberfall, главная"><span class="brand-mark">◈</span><span>EMBERFALL<small>БИТВА ЗА ИСТОК</small></span></a>
+      <nav aria-label="Главное меню"><button class="nav-item active" data-view="play">ИГРАТЬ</button><button class="nav-item" data-open="guide">КАК ИГРАТЬ</button><button class="nav-item" data-open="settings">НАСТРОЙКИ</button></nav>
+      <div class="build-label"><i></i> ORIGINAL MOBA <span>01</span></div>
+    </header>
+    <main class="lobby-main">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> ТРИ ЛИНИИ. ОДНА ЛЕГЕНДА.</p>
+        <h1>Битва<br>за <em>Исток.</em></h1>
+        <p class="intro">Собери силу стихий. Пройди сквозь башни.<br>Сокруши сердце вражеской крепости.</p>
+        <div class="feature-chips"><span>5 <b>×</b> 5</span><span>6 ГЕРОЕВ</span><span>3 ЛИНИИ</span></div>
+        <div class="mode-switch" role="group" aria-label="Режим игры"><button id="mode-offline" class="selected"><span>◉</span> С ботами<small>Без интернета</small></button><button id="mode-online"><span>⌘</span> По сети<small>Комната с друзьями</small></button></div>
+        <div id="offline-options" class="mode-options"><label for="difficulty">Сложность ботов</label><select id="difficulty"><option value="easy">Новичок</option><option value="normal" selected>Тактик</option><option value="hard">Ветеран</option></select></div>
+        <div id="online-options" class="online-options" hidden><label>Твоё имя<input id="player-name" maxlength="24" placeholder="Искатель" autocomplete="nickname"></label><div class="join-line"><input id="room-code" maxlength="6" placeholder="КОД КОМНАТЫ" aria-label="Код комнаты"><button id="join-room" class="button-secondary">Войти</button></div><p id="network-hint">Создай комнату и пригласи друзей по коду.</p></div>
+        <button id="play-button" class="button-primary"><span>НАЧАТЬ СРАЖЕНИЕ</span><span aria-hidden="true">↗</span></button>
+        <p id="play-note" class="play-note">Ты и 9 ботов · матч до уничтожения Истока</p>
+      </div>
+      <div class="hero-stage" aria-hidden="true"><div class="hero-halo"></div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><canvas id="hero-art" width="640" height="640"></canvas><div class="stage-runes">ᚨ · ᛟ · ᚱ · ᛖ · ᚨ · ᛟ</div><span class="stage-caption">ВЫБЕРИ СВОЮ СТОРОНУ ИСТОРИИ</span></div>
+      <aside class="hero-details"><p class="eyebrow">ТВОЙ ГЕРОЙ <span id="hero-number">01 / 06</span></p><h2 id="hero-name"></h2><p id="hero-role" class="role-label"></p><p id="hero-description"></p><div id="hero-stats" class="hero-stats"></div><div id="hero-abilities-preview" class="ability-preview"></div><p class="hint-small">Каждая стихия меняет ход сражения.</p></aside>
+    </main>
+    <footer class="hero-roster"><div class="roster-label">ВЫБЕРИ ГЕРОЯ<small>Шесть путей к победе</small></div><div id="hero-cards" class="hero-cards" role="group" aria-label="Выбор героя"></div></footer>
+    <div class="lobby-footnote"><span>СВОЙ МИР. СВОИ ЛЕГЕНДЫ.</span><button data-open="guide">ПРАВИЛА И УПРАВЛЕНИЕ ↗</button></div>
+  </section>
+
+  <section id="match-ui" class="match-ui" aria-label="Интерфейс матча" hidden>
+    <div class="match-tools"><button id="match-menu" aria-label="Меню матча">☰</button><span class="match-brand">◈ EMBERFALL</span><button id="sound-toggle" aria-label="Включить или выключить звук">♫</button></div>
+    <div class="scorebar"><span class="team-name dawn">РАССВЕТ</span><strong id="score-dawn">0</strong><div class="match-clock"><span id="match-mode">БОТЫ · 5 × 5</span><b id="match-time">00:00</b></div><strong id="score-dusk">0</strong><span class="team-name dusk">ПЕПЕЛ</span></div>
+    <div class="match-top-right"><button id="scoreboard-button">Счёт <kbd>Tab</kbd></button><button data-open="guide">?</button></div>
+    <div id="kill-feed" class="kill-feed" aria-live="polite"></div>
+    <div id="objective" class="objective"><span>◈</span><div><b>Разрушь вражеский Исток</b><small>Сначала открой путь через башни одной из линий.</small></div></div>
+    <div id="death-notice" class="death-notice" hidden><small>ГЕРОЙ ПОВЕРЖЕН</small><strong id="respawn-time">15</strong><span>Исток вернёт тебя в бой</span></div>
+    <div id="cast-notice" class="cast-notice" hidden>Выбери цель · Esc — отмена</div>
+    <div id="connection-notice" class="connection-notice" hidden></div>
+    <div id="touch-controls" class="touch-controls"><button id="touch-recall">⌂<small>На базу</small></button><button id="touch-stop">■<small>Стоп</small></button><button id="touch-follow">◎<small>К герою</small></button></div>
+    <footer class="battle-hud">
+      <div class="minimap-frame"><canvas id="minimap" width="220" height="220" aria-label="Миникарта: нажми, чтобы посмотреть участок"></canvas><span>КАРТА <kbd>Пробел</kbd> — к герою</span></div>
+      <div class="hero-hud"><div class="hero-hud-head"><canvas id="hud-portrait" width="100" height="100"></canvas><div><b id="hud-name"></b><span id="hud-role"></span><small>УРОВЕНЬ <strong id="hud-level">1</strong></small></div></div><div class="resource hp"><div id="hp-fill"></div><span id="hp-text"></span></div><div class="resource mana"><div id="mana-fill"></div><span id="mana-text"></span></div><div class="xp-track"><i id="xp-fill"></i></div><div class="combat-stats"><span title="Урон">⚔ <b id="hud-damage">0</b></span><span title="Убийства / смерти / помощь">K / D / A <b id="hud-kda">0 / 0 / 0</b></span></div></div>
+      <div class="abilities-block"><div class="hud-section-label">СПОСОБНОСТИ <span id="hero-state">ГОТОВ К БОЮ</span></div><div id="ability-buttons" class="ability-buttons"></div><div class="control-reminder">ЛКМ / ПКМ — идти или атаковать <span>Q W E R — навыки</span></div></div>
+      <div class="inventory-block"><div class="hud-section-label">СНАРЯЖЕНИЕ <button id="recall-button" title="Вернуться на базу, D">⌂ <kbd>D</kbd></button></div><div id="inventory" class="inventory"></div><button id="shop-button" class="shop-button"><span>◈ <b id="hud-gold">0</b></span><span>ЛАВКА <kbd>B</kbd></span></button></div>
+    </footer>
+    <aside id="shop" class="shop panel" hidden><header><div><p class="eyebrow">АРСЕНАЛ СТИХИЙ</p><h2>Лавка</h2></div><button class="close-button" id="close-shop" aria-label="Закрыть лавку">×</button></header><p class="shop-hint">Предметы дают постоянные бонусы. Покупай их рядом со своим Истоком. Клавиша D возвращает героя на базу.</p><div id="shop-items"></div><div id="shop-message" role="status"></div></aside>
+  </section>
+
+  <div id="modal-backdrop" class="modal-backdrop" hidden>
+    <section id="guide-modal" class="modal" hidden><button class="close-button" data-close aria-label="Закрыть">×</button><p class="eyebrow">ПУТЕВОДИТЕЛЬ ИСКАТЕЛЯ</p><h2>Твой первый бой</h2><div class="guide-grid"><article><span>01</span><h3>Выбери свой путь</h3><p>Две команды по пять героев. Двигайся по одной из трёх линий вместе с союзными воинами. Боты займут свободные места.</p></article><article><span>02</span><h3>Становись сильнее</h3><p>Атакуй противников, получай золото и опыт. Покупай предметы в лавке. Четыре способности доступны с начала матча, а их сила растёт с уровнем.</p></article><article><span>03</span><h3>Доберись до Истока</h3><p>Разрушь башни по порядку хотя бы на одной линии. Затем уничтожь вражеское ядро. Союзная база восстанавливает здоровье и ману.</p></article></div><div class="key-guide"><div><kbd>ЛКМ / ПКМ</kbd><span>Идти / атаковать врага</span></div><div><kbd>Q W E R</kbd><span>Навык → щелчок по цели</span></div><div><kbd>A</kbd><span>Атака по пути → щелчок</span></div><div><kbd>S</kbd><span>Остановиться</span></div><div><kbd>D</kbd><span>Возврат на базу</span></div><div><kbd>B</kbd><span>Лавка предметов</span></div><div><kbd>Пробел</kbd><span>Камера к герою</span></div><div><kbd>Tab</kbd><span>Таблица игроков</span></div><div><kbd>Esc</kbd><span>Отмена навыка / меню</span></div></div><p class="subtle">На сенсорном экране: касание карты — движение или атака, кнопка навыка — затем касание цели. В одиночной игре меню ставит матч на паузу. В сетевой игре время идёт для всех.</p><button class="button-primary" data-close>ПОНЯТНО. В БОЙ ↗</button></section>
+    <section id="settings-modal" class="modal settings-modal" hidden><button class="close-button" data-close aria-label="Закрыть">×</button><p class="eyebrow">СОЗДАЙ СВОЮ АТМОСФЕРУ</p><h2>Настройки</h2><label class="setting-row"><span>Звуки сражения<small>Синтезированные звуки, без внешних файлов</small></span><input id="setting-sound" type="checkbox"></label><label class="setting-row"><span>Громкость</span><input id="setting-volume" type="range" min="0" max="100" value="35"></label><label class="setting-row"><span>Качество графики<small>Низкое уменьшает количество деталей</small></span><select id="setting-quality"><option value="high">Высокое</option><option value="low">Низкое</option></select></label><label class="setting-row"><span>Меньше анимации<small>Уменьшает движение фоновой сцены</small></span><input id="setting-reduced" type="checkbox"></label><button id="fullscreen-button" class="button-secondary">Развернуть на весь экран ↗</button><p class="subtle">Настройки сохраняются на этом устройстве. Emberfall — самостоятельная игра с оригинальными героями и графикой.</p></section>
+    <section id="pause-modal" class="modal pause-modal" hidden><p class="eyebrow" id="pause-label">СРАЖЕНИЕ НА ПАУЗЕ</p><h2>Перевести дух.</h2><p id="pause-description">Твой отряд ждёт возвращения.</p><button id="resume-button" class="button-primary">ВЕРНУТЬСЯ В БОЙ ↗</button><button id="pause-settings" class="button-secondary">Настройки</button><button id="leave-match" class="button-text">Выйти в главное меню</button></section>
+    <section id="room-modal" class="modal room-modal" hidden><p class="eyebrow">СЕТЕВАЯ КОМНАТА</p><header class="room-heading"><div><h2 id="room-title">Отряд собирается</h2><p>Код комнаты <strong id="room-code-display"></strong></p></div><button id="copy-room" class="button-secondary">Копировать код</button></header><p class="subtle">Пригласи друзей: им нужны эта же страница и код комнаты. Свободные места займут боты. Игроки одной команды могут выбрать одинаковых героев.</p><div id="room-players" class="room-players"></div><div class="room-actions"><button id="start-room" class="button-primary">НАЧАТЬ МАТЧ ↗</button><button id="leave-room" class="button-text">Покинуть комнату</button></div><p id="room-status" class="subtle" role="status"></p></section>
+    <section id="score-modal" class="modal score-modal" hidden><button class="close-button" data-close aria-label="Закрыть">×</button><p class="eyebrow">ЛЕТОПИСЬ СРАЖЕНИЯ</p><h2>Таблица героев</h2><div id="score-table"></div></section>
+    <section id="result-modal" class="modal result-modal" hidden><div id="result-symbol">◈</div><p class="eyebrow" id="result-eyebrow">ИСТОК ВОССТАНОВЛЕН</p><h2 id="result-title">Победа</h2><p id="result-description"></p><div id="result-stats" class="result-stats"></div><button id="replay-button" class="button-primary">ЕЩЁ ОДНО СРАЖЕНИЕ ↗</button><button id="result-menu" class="button-text">Главное меню</button></section>
+  </div>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="fatal" class="fatal" hidden><h1>Не удалось пробудить Исток</h1><p id="fatal-text"></p><button onclick="location.reload()">Повторить запуск</button></div>
+  <script src="game-core.js"></script>
+  <script src="renderer.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
