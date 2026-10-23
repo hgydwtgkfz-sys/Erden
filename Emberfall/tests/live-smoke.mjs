@@ -1,7 +1,7 @@
 // Explicit opt-in integration check against the ACTUAL deployed HTTP API.
 // Tokens exist only in memory. Both temporary players leave in finally.
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 if (process.argv.includes('--live')) {
@@ -14,6 +14,12 @@ async function main() {
   assert.equal(base.protocol, 'https:', 'Run only against the approved HTTPS deployment');
   const output = resolve(args[1] || '../../outputs/Emberfall/online-verification.json');
   const summary = { publicUrl: base.origin, checkedAt: new Date().toISOString(), transport: 'actual HTTPS fetch to public deployment', checks: [], cleanup: [], passed: false };
+  try {
+    const previous = JSON.parse(await readFile(output, 'utf8'));
+    if (previous.staticChecks?.length) {
+      summary.staticVerification = { checkedAt: previous.checkedAt, completedAt: previous.completedAt, publicStaticPassed: previous.publicStaticPassed, staticChecks: previous.staticChecks };
+    } else if (previous.staticVerification) summary.staticVerification = previous.staticVerification;
+  } catch (error) { if (error.code !== 'ENOENT') throw error; }
   const clients = [];
   let code;
   const check = (name, details = {}) => { summary.checks.push({ name, passed: true, ...details }); console.log('PASS ' + name); };
@@ -37,11 +43,11 @@ async function main() {
   const get = client => request('/api/rooms/' + code, { token: client.token });
   const act = (client, action, seq = ++client.seq) => request(`/api/rooms/${code}/action`, { method: 'POST', token: client.token, body: { seq, action } });
   try {
-    const first = await request('/api/rooms', { method: 'POST', body: { name: 'Live QA первый', heroId: 'aster', team: 0 }, expect: 201 });
+    const first = await request('/api/rooms', { method: 'POST', body: { name: 'QA A', heroId: 'aster', team: 0 }, expect: 201 });
     code = first.code;
     clients.push({ token: first.token, id: first.playerId, seq: 0 });
     assert.match(code, /^[A-HJ-NP-Z2-9]{6}$/);
-    const second = await request(`/api/rooms/${code}/join`, { method: 'POST', body: { name: 'Live QA второй', heroId: 'aster', team: 1 } });
+    const second = await request(`/api/rooms/${code}/join`, { method: 'POST', body: { name: 'QA B', heroId: 'aster', team: 1 } });
     clients.push({ token: second.token, id: second.playerId, seq: 0 });
     const [host, guest] = clients;
     assert.notEqual(host.token, guest.token); assert.notEqual(host.id, guest.id);
@@ -124,10 +130,12 @@ async function main() {
     assert.ok(!serialized.includes('tokenHash'));
     check('snapshots contain no bearer tokens or token hashes');
     summary.passed = true;
+    summary.remoteMatch = 'passed';
   } catch (error) {
     summary.error = String(error.message).replace(/[a-f0-9]{64}/g, '[redacted]');
     console.error('FAIL ' + summary.error);
     process.exitCode = 1;
+    summary.remoteMatch = 'failed';
   } finally {
     for (const [index, client] of clients.entries()) {
       try {
@@ -136,6 +144,18 @@ async function main() {
         summary.cleanup.push({ player: index + 1, left: true, remainingHost: left.room.hostId !== null });
       } catch (error) {
         summary.cleanup.push({ player: index + 1, left: false, error: String(error.message).replace(/[a-f0-9]{64}/g, '[redacted]') });
+        summary.passed = false; process.exitCode = 1;
+      }
+    }
+    if (clients.length && summary.cleanup.every(player => player.left)) {
+      try {
+        const removed = await request(`/api/rooms/${code}`, { token: clients[0].token, expect: 404 });
+        assert.equal(removed.error, 'room_not_found');
+        summary.roomDeleted = true;
+        check('both players left and the disposable room was deleted', { httpStatusAfterLeave: 404 });
+      } catch (error) {
+        summary.roomDeleted = false;
+        summary.cleanupVerificationError = String(error.message).replace(/[a-f0-9]{64}/g, '[redacted]');
         summary.passed = false; process.exitCode = 1;
       }
     }

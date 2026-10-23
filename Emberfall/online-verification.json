@@ -1,0 +1,159 @@
+{
+  "publicUrl": "https://emberfall-battle-for-origin.quietchub17.chatgpt.site",
+  "checkedAt": "2026-10-23T19:01:21.697Z",
+  "transport": "actual HTTPS fetch to public deployment",
+  "checks": [
+    {
+      "name": "two independent authenticated players create and join",
+      "passed": true,
+      "players": 2,
+      "teams": [
+        0,
+        1
+      ]
+    },
+    {
+      "name": "authentication and host-only start",
+      "passed": true
+    },
+    {
+      "name": "authoritative 5 versus 5 match starts",
+      "passed": true,
+      "heroes": 10,
+      "humanPlayers": 2,
+      "bots": 8,
+      "structures": 20
+    },
+    {
+      "name": "shop purchase and sequence replay do not duplicate items",
+      "passed": true,
+      "item": "swiftboots",
+      "itemCountAfterReplay": 1
+    },
+    {
+      "name": "W spends mana, creates shield and enforces cooldown",
+      "passed": true,
+      "manaBefore": 420,
+      "manaAfter": 365,
+      "shield": 170,
+      "cooldown": 15
+    },
+    {
+      "name": "movement and replay protection visible to the other client",
+      "passed": true,
+      "observedDistance": 1057.61,
+      "observedPosition": {
+        "x": 1000,
+        "y": 1500
+      },
+      "rejectedReplayTarget": {
+        "x": 50,
+        "y": 50
+      }
+    },
+    {
+      "name": "real enemy damage and stun propagate to the other client",
+      "passed": true,
+      "ability": "Aster E",
+      "distanceAtCast": 400,
+      "victimHpBefore": 747.3769366574503,
+      "victimHpAfter": 593.8040906093713,
+      "victimShieldBefore": 0,
+      "victimShieldAfter": 0,
+      "combinedHpShieldLoss": 153.573,
+      "stunAfter": 1.1,
+      "exactCasterContributionRecorded": true,
+      "secondClientObservedDamage": true,
+      "simulationTime": 19.45000000000014,
+      "cooldownObserved": 12.199999999999989
+    },
+    {
+      "name": "snapshots contain no bearer tokens or token hashes",
+      "passed": true
+    },
+    {
+      "name": "both players left and the disposable room was deleted",
+      "passed": true,
+      "httpStatusAfterLeave": 404
+    }
+  ],
+  "cleanup": [
+    {
+      "player": 1,
+      "left": true,
+      "remainingHost": true
+    },
+    {
+      "player": 2,
+      "left": true,
+      "remainingHost": false
+    }
+  ],
+  "passed": true,
+  "staticVerification": {
+    "checkedAt": "2026-10-23T18:54:39.722Z",
+    "completedAt": "2026-10-23T18:54:40.528Z",
+    "publicStaticPassed": true,
+    "staticChecks": [
+      {
+        "route": "/",
+        "status": 200,
+        "bytes": 16194,
+        "sha256": "80a3df3aaea1f9d83a1d4142cecb76084655b4ba5532297e41488d4a6ceb2478",
+        "sourceSha256": "850a60c5595e4d7d37f67664f943fde7d362149e8b712666f0d1d25259397073",
+        "exactSourceMatch": false,
+        "applicationSourceMatch": true,
+        "edgeInjection": "Exact recognized Cloudflare browser challenge; only request id and timestamp vary",
+        "edgeInjectionBytes": 938
+      },
+      {
+        "route": "/styles.css",
+        "status": 200,
+        "bytes": 34339,
+        "sha256": "4ef7835f46d1cbd715b575e330fd78063c633ccdcaf9bada431bf1338ee08bd0",
+        "sourceSha256": "4ef7835f46d1cbd715b575e330fd78063c633ccdcaf9bada431bf1338ee08bd0",
+        "exactSourceMatch": true,
+        "applicationSourceMatch": true
+      },
+      {
+        "route": "/game-core.js",
+        "status": 200,
+        "bytes": 53539,
+        "sha256": "a26f0c1d969cf7177455a9cc8dfc09fcc588b7ec08b6a95006ccd061eab1dcdc",
+        "sourceSha256": "a26f0c1d969cf7177455a9cc8dfc09fcc588b7ec08b6a95006ccd061eab1dcdc",
+        "exactSourceMatch": true,
+        "applicationSourceMatch": true
+      },
+      {
+        "route": "/renderer.js",
+        "status": 200,
+        "bytes": 60178,
+        "sha256": "73b829fcc1c43a57ed700c213a4dcbef830f8259cb56548d101be45671344617",
+        "sourceSha256": "73b829fcc1c43a57ed700c213a4dcbef830f8259cb56548d101be45671344617",
+        "exactSourceMatch": true,
+        "applicationSourceMatch": true
+      },
+      {
+        "route": "/app.js",
+        "status": 200,
+        "bytes": 36662,
+        "sha256": "809a45a79ecb7fcbc9f6c8584fe3dcf8d47a1bed6012eabddcaacda2afc37c9f",
+        "sourceSha256": "809a45a79ecb7fcbc9f6c8584fe3dcf8d47a1bed6012eabddcaacda2afc37c9f",
+        "exactSourceMatch": true,
+        "applicationSourceMatch": true
+      },
+      {
+        "route": "/Emberfall.html",
+        "status": 200,
+        "bytes": 199906,
+        "sha256": "f83ad6798bf05ec3c639395e88e6b3307b03841b4c9a2d2122d818549034c282",
+        "sourceSha256": "f83ad6798bf05ec3c639395e88e6b3307b03841b4c9a2d2122d818549034c282",
+        "exactSourceMatch": true,
+        "applicationSourceMatch": true
+      }
+    ]
+  },
+  "remoteMatch": "passed",
+  "roomDeleted": true,
+  "completedAt": "2026-10-23T19:01:46.360Z"
+}
