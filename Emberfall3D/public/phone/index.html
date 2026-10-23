@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e9edef">
+  <meta name="description" content="Интерактивная браузерная модель телефона: рабочий стол, приложения, заметки, калькулятор и складной экран.">
+  <title>Pocket Lab — интерактивный телефон</title>
+  <style>
+:root { color-scheme: light; --ink:#202c33; --muted:#77848a; --paper:#e9edef; --line:#d7dfe1; --accent:#078578; --app-bg:#f2f3f7; --app-card:#fff; --app-text:#1b2530; --app-muted:#7e8490; --app-line:#e6e8ee; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; }
+* { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); min-width:280px; } button,input,textarea,select { font:inherit; } button { cursor:pointer; -webkit-tap-highlight-color:transparent; } button:disabled { cursor:default; opacity:.5; } button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:3px solid #26a89b; outline-offset:4px; } button { color:inherit; } svg { display:block; } [hidden] { display:none!important; } .svg-library { position:absolute; width:0; height:0; overflow:hidden; } .site-header { height:91px; padding:0 4.6%; display:flex; align-items:center; justify-content:space-between; gap:20px; border-bottom:1px solid #d3dce080; } .brand { text-decoration:none; color:var(--ink); display:flex; align-items:center; gap:11px; font-size:20px; letter-spacing:-.7px; } .brand b { font-weight:650; } .brand-mark { display:flex; align-items:center; gap:3px; width:28px; height:30px; transform:rotate(-10deg); } .brand-mark span { height:27px; width:11px; border-radius:4px; background:var(--accent); } .brand-mark span+span { height:20px; background:#4bafa4; } .site-status { font-size:11px; color:#6a7d80; display:flex; align-items:center; gap:7px; letter-spacing:.2px; } .site-status i,.caption-dot { width:5px; height:5px; border-radius:50%; background:#079c89; display:inline-block; } .help-button { background:none; border:0; font-size:12px; padding:12px 0 12px 12px; color:#435861; } .help-button span { margin-left:16px; font-size:17px; } .studio { min-height:670px; height:calc(100dvh - 141px); max-height:1000px; display:grid; grid-template-columns:240px minmax(320px,1fr) 220px; align-items:center; gap:24px; padding:12px 4.6%; }
+.intro-panel { align-self:center; padding:10px 0 30px; } .eyebrow { font:9px/1.5 Consolas,monospace; letter-spacing:1.8px; color:#77878c; margin:0 0 27px; } h1 { font-weight:500; font-size:clamp(30px,3vw,43px); line-height:1.07; letter-spacing:-1.9px; margin:0 0 24px; } h1 span { color:#7e9399; } .intro-copy { max-width:200px; color:#6e8188; font-size:12px; line-height:1.8; margin:0; } .intro-line { width:40px; border-top:1px solid #b9c6cb; margin:31px 0 24px; } .feature-note { display:flex; align-items:center; gap:14px; color:#4e656d; font-size:10px; line-height:1.5; } .feature-number { font:33px/1.1 "Segoe UI",sans-serif; font-weight:300; letter-spacing:-1px; } .local-note { font-size:10px; color:#86969b; line-height:1.7; max-width:174px; margin:21px 0; } .shortcuts { display:flex; flex-direction:column; gap:7px; font-size:9px; color:#8a989e; } kbd { display:inline-block; min-width:21px; border:1px solid #cbd5d9; border-radius:4px; background:#f0f3f5; padding:2px 4px; color:#637b84; font:9px Consolas,monospace; margin-right:4px; }
+.stage { align-self:stretch; display:flex; align-items:center; justify-content:center; min-width:0; position:relative; perspective:1400px; min-height:560px; } .floor-shadow { width:260px; height:35px; background:#24435220; filter:blur(19px); position:absolute; bottom:22px; border-radius:50%; } .device-mount { width:340px; height:714px; flex:0 0 auto; transform:scale(var(--device-scale,.88)); transform-origin:center center; } .device { width:340px; height:714px; position:relative; padding:10px; border-radius:53px; background:linear-gradient(110deg,#6a6d72,#25292d 12%,#111416 50%,#4b5157 98%); border:1px solid #adb2b5; box-shadow:inset 0 0 0 2px #171c20,inset 0 0 0 4px #72777a,14px 25px 42px #344b542c,4px 6px 9px #142b3026; transform:rotateY(var(--angle,-8deg)) rotateX(2deg); transform-style:preserve-3d; } .device::after { content:""; position:absolute; inset:5px; border:1px solid #b6bdc94a; border-radius:49px; pointer-events:none; } .device.case-silver { background:linear-gradient(110deg,#eceef2,#9b9fa6 15%,#d7dce0 65%,#979ea4); box-shadow:inset 0 0 0 2px #9299a2,inset 0 0 0 4px #eef0f2,14px 25px 42px #344b542c; } .device.case-lilac { background:linear-gradient(110deg,#d8d0e5,#82728d 15%,#c4b6d3 65%,#9783a5); box-shadow:inset 0 0 0 2px #82768e,inset 0 0 0 4px #d6c9e0,14px 25px 42px #344b542c; }
+.hardware { position:absolute; z-index:2; background:linear-gradient(90deg,#767b80,#30393f); border:1px solid #57616a; padding:0; width:4px; border-radius:3px; } .hardware-mute { left:-4px; top:115px; height:24px; } .hardware-up { left:-4px; top:160px; height:46px; } .hardware-down { left:-4px; top:218px; height:46px; } .hardware-power { right:-4px; top:182px; height:73px; }
+.phone-screen { height:100%; width:100%; position:relative; overflow:hidden; border-radius:43px; color:white; background:#123c87; isolation:isolate; filter:brightness(var(--brightness,1)); -webkit-user-select:none; user-select:none; } .wallpaper-aurora { background:radial-gradient(ellipse at 95% 25%,#70d0f5 0,transparent 51%),radial-gradient(ellipse at 10% 81%,#a78cee 0,transparent 53%),linear-gradient(150deg,#122962 5%,#376cc4 39%,#468ce9 53%,#5c4b9b 83%,#2a315a); } .wallpaper-dusk { background:radial-gradient(ellipse at 90% 27%,#ffcfb6 0,transparent 52%),radial-gradient(ellipse at 0% 95%,#cf6062 0,transparent 60%),linear-gradient(160deg,#743b68,#c581a1 43%,#e9b7a4 55%,#9d5362); } .wallpaper-forest { background:radial-gradient(ellipse at 90% 25%,#c7dcc2 0,transparent 60%),radial-gradient(ellipse at 0 90%,#105152 0,transparent 51%),linear-gradient(145deg,#193a42,#68938c 50%,#a9c6ac 51%,#2d6964); }
+.wallpaper-orbit { position:absolute; width:550px; height:450px; border:35px solid #ffffff1b; border-radius:48%; transform:rotate(-40deg); pointer-events:none; z-index:-1; } .orbit-one { left:-260px; top:160px; box-shadow:inset 0 0 50px #9be1ff55,0 0 50px #9be1ff22; } .orbit-two { right:-410px; top:-140px; width:650px; height:600px; border:60px solid #1720471a; }
+.status-bar { height:50px; position:absolute; left:0; right:0; top:0; display:flex; align-items:center; justify-content:space-between; padding:2px 29px 0 30px; font-size:12px; font-weight:600; z-index:6; pointer-events:none; } .status-indicators { display:flex; gap:5px; align-items:center; } .battery { border:1px solid #ffffffb0; position:relative; border-radius:4px; padding:0 3px; font-size:9px; line-height:12px; min-width:23px; background:#ffffff25; } .battery::after { content:""; width:2px; height:5px; background:#ffffffa0; position:absolute; right:-4px; top:3px; border-radius:0 1px 1px 0; } .island { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:92px; height:27px; background:#06080d; border:1px solid #111; border-radius:20px; z-index:7; display:flex; justify-content:flex-end; align-items:center; padding-right:10px; } .island i { width:9px; height:9px; background:radial-gradient(circle,#254377,#0b1325 50%,#111 70%); border:1px solid #191c24; border-radius:50%; } .island span { width:31px; height:4px; background:#111319; border-radius:9px; margin-right:14px; }
+.lock-screen { position:absolute; inset:50px 0 28px; display:flex; flex-direction:column; align-items:center; padding:38px 20px 22px; } .lock-top { text-align:center; display:flex; flex-direction:column; align-items:center; } .lock-top>svg { margin-bottom:14px; } #lockDate { margin:0 0 1px; font-size:15px; font-weight:550; } #lockTime { font-size:80px; font-weight:350; letter-spacing:-5px; line-height:1.15; font-variant-numeric:tabular-nums; } .lock-message { display:flex; gap:10px; width:100%; align-items:center; border:1px solid #ffffff20; background:#ffffff26; border-radius:17px; padding:13px 12px; backdrop-filter:blur(20px); margin-top:45px; box-shadow:0 3px 12px #1526530d; } .lock-message-icon { width:36px; height:36px; background:#f58b75; display:grid; place-items:center; border-radius:11px; flex:0 0 auto; } .lock-message b { font-size:12px; font-weight:600; } .lock-message p { font-size:11px; line-height:1.4; margin:4px 0 0; } .lock-message>span:last-child { align-self:start; margin-top:1px; font-size:8px; opacity:.7; } .unlock-button { color:white; font-size:11px; background:none; border:0; width:100%; min-height:62px; margin-top:auto; padding:12px 0; touch-action:none; } .unlock-button>span { display:block; font-size:20px; margin-bottom:4px; }
+.home-screen { position:absolute; inset:65px 0 26px; padding:0 20px; display:flex; flex-direction:column; } .home-widgets { display:grid; grid-template-columns:1fr 1fr; gap:13px; margin:8px 0 25px; } .home-widgets button { min-height:132px; border:1px solid #ffffff35; border-radius:22px; backdrop-filter:blur(18px); color:white; text-align:left; padding:16px; box-shadow:0 3px 10px #17283b13; } .date-widget { background:linear-gradient(160deg,#fcfff0eb,#ffffffd6); color:#23414a!important; } .date-widget>span { display:block; color:#d4655f; font-size:10px; font-weight:650; } .date-widget strong { display:block; font-size:48px; line-height:1.12; font-weight:350; letter-spacing:-2px; } .date-widget small { font-size:10px; color:#65818b; } .geometry-widget { background:linear-gradient(145deg,#ffad8be8,#d96b88df); } .geometry-widget svg { margin-bottom:14px; } .geometry-widget strong { display:block; font-size:12px; } .geometry-widget small { display:block; font-size:9px; line-height:1.4; margin-top:4px; opacity:.9; }
+.app-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:20px 9px; } .app-tile { display:flex; flex-direction:column; align-items:center; color:white; border:0; background:transparent; min-width:0; padding:0; font-size:9px; text-shadow:0 1px 3px #14327655; gap:7px; } .app-icon { width:54px; height:54px; border-radius:15px; display:grid; place-items:center; color:white; box-shadow:inset 0 0 0 1px #ffffff30,0 3px 9px #10274522; text-shadow:none; } .app-icon svg { width:30px; height:30px; } .icon-geometry { background:linear-gradient(140deg,#ffba80,#e36d76); } .icon-calculator { background:linear-gradient(140deg,#3b424b,#1f242c); color:#ffc570; } .icon-notes { background:linear-gradient(#ffdc5e 0 27%,#fff9e5 27% 100%); color:#a0a3a7; } .icon-clock { background:#fdfdfd; color:#1e2831; } .icon-clock svg { width:40px; height:40px; } .icon-signal { background:linear-gradient(145deg,#2caf99,#15766f); } .icon-photos { background:#fff; } .icon-photos svg { width:40px; height:40px; } .icon-messages { background:linear-gradient(#6be477,#20b64f); } .icon-settings { background:linear-gradient(#e5e7ec,#a7b3c5); color:#586277; } .home-caption { font-size:9px; text-align:center; opacity:.55; margin:28px 0 12px; } .dock { background:#ffffff2b; border:1px solid #ffffff28; border-radius:25px; display:flex; justify-content:space-between; padding:13px 12px; margin-top:auto; backdrop-filter:blur(25px); } .dock .app-tile { gap:0; } .dock .tile-label { display:none; } .dock .app-icon { width:52px; height:52px; border-radius:14px; }
+.home-indicator { position:absolute; bottom:9px; left:50%; transform:translateX(-50%); width:108px; height:5px; padding:0; background:#fffffff0; border:0; border-radius:7px; z-index:8; } .home-indicator::before { content:""; position:absolute; inset:-12px -20px; } .app-screen { position:absolute; inset:0; padding-top:50px; padding-bottom:31px; background:var(--app-bg); color:var(--app-text); z-index:4; display:flex; flex-direction:column; } .phone-screen.app-open .status-bar { color:var(--app-text); } .phone-screen.app-open .battery { border-color:var(--app-muted); background:#80808015; } .phone-screen.app-open .battery::after { background:var(--app-muted); } .phone-screen.app-open .home-indicator { background:var(--app-text); } .app-header { height:47px; display:flex; justify-content:space-between; align-items:center; padding:0 16px 7px; flex:0 0 auto; } .app-header h2 { font-size:14px; font-weight:650; margin:0; } .app-header button { border:0; background:none; color:var(--accent); width:30px; height:36px; font-size:30px; line-height:1; padding:0; } .app-header button:last-child { color:var(--app-muted); font-size:24px; } .app-body { min-height:0; flex:1; overflow:hidden; user-select:text; -webkit-user-select:text; }
+.app-scroll { overflow:auto; height:100%; padding:12px 16px 20px; scrollbar-width:thin; scrollbar-color:#a8b6bb60 transparent; } .app-card { padding:16px; border-radius:17px; background:var(--app-card); border:1px solid var(--app-line); margin-bottom:12px; } .app-button { border:0; border-radius:11px; padding:12px 15px; background:var(--accent); color:white; font-size:12px; font-weight:600; min-height:42px; } .app-input { width:100%; color:var(--app-text); background:var(--app-card); border:1px solid var(--app-line); padding:10px 12px; border-radius:10px; min-height:40px; } .app-label { display:block; color:var(--app-muted); font-size:11px; margin:0 0 6px; } .muted { color:var(--app-muted); } .phone-screen.dark { color-scheme:dark; --app-bg:#131820; --app-card:#202733; --app-text:#e9eef5; --app-muted:#a0acbd; --app-line:#303b4b; --accent:#60bcb2; } .app-page-title { font-size:22px; letter-spacing:-.6px; margin:3px 0 8px; } .app-subtitle { font-size:11px; color:var(--app-muted); line-height:1.5; margin:0 0 18px; }
+.toast { position:absolute; z-index:15; left:18px; right:18px; bottom:44px; padding:12px 15px; border-radius:13px; background:#111c30ed; color:white; box-shadow:0 5px 18px #0002; font-size:11px; line-height:1.4; text-align:center; pointer-events:none; } .screen-crease { display:none; position:absolute; left:50%; top:0; bottom:0; width:10px; transform:translateX(-50%); background:linear-gradient(90deg,transparent,#00000010,transparent); z-index:9; pointer-events:none; } .device.wide { width:650px; border-radius:40px; } .device.wide .phone-screen { border-radius:29px; } .device.wide::after { border-radius:36px; } .device.wide .screen-crease { display:block; } .device.wide .home-screen { padding:0 30px; } .device.wide .home-widgets { grid-template-columns:1fr 1fr; width:380px; margin:15px auto 29px; } .device.wide .app-grid { grid-template-columns:repeat(4,1fr); max-width:490px; width:100%; margin:0 auto; gap:20px; } .device.wide .dock { max-width:330px; width:100%; align-self:center; } .device.wide .lock-message { max-width:400px; } .device.wide .lock-top { margin-top:15px; } .device.wide .app-body { max-width:630px; width:100%; align-self:center; }
+.stage-caption { position:absolute; left:0; right:0; bottom:3px; text-align:center; font:9px/1.5 Consolas,monospace; color:#83949b; display:flex; align-items:center; justify-content:center; gap:6px; }
+.control-panel { background:#f4f6f6b8; border:1px solid #ffffffc0; border-radius:19px; padding:21px 19px; box-shadow:0 8px 26px #284b5510; } .control-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:21px; } .control-top h2 { font-size:12px; font-weight:600; margin:0; } .control-top>span { font:10px Consolas,monospace; color:#9aa9ae; } .mode-switch { display:flex; padding:3px; background:#e5ecee; border-radius:9px; gap:2px; margin-bottom:24px; } .mode-switch button { min-width:0; flex:1; border:0; background:none; font-size:10px; padding:8px 4px; border-radius:6px; color:#71828a; display:flex; align-items:center; justify-content:center; gap:5px; } .mode-switch button[aria-pressed=true] { background:#fff; color:#314d56; box-shadow:0 1px 4px #23394112; } .control-group { margin-top:21px; } .control-group label,.control-label { display:flex; align-items:center; justify-content:space-between; font-size:10px; color:#677f87; margin-bottom:12px; } .control-group output { font:9px Consolas,monospace; color:#8a9da4; } input[type=range] { width:100%; display:block; height:3px; margin:12px 0 4px; accent-color:#3b7b7c; cursor:pointer; } .case-colors { display:flex; align-items:center; gap:8px; margin-top:13px; } .swatch { width:21px; height:21px; padding:0; border:2px solid #fff; border-radius:50%; box-shadow:0 0 0 1px #dce4e7; } .swatch[aria-pressed=true] { box-shadow:0 0 0 2px #69898d; } .swatch.graphite { background:#4a5158; } .swatch.silver { background:#cdd2d7; } .swatch.lilac { background:#c4b4ce; } #caseName { margin-left:auto; font-size:9px; color:#7d9197; } .control-panel hr { border:0; border-top:1px solid #dae3e5; margin:24px 0 12px; } .control-action { width:100%; padding:12px 0; background:none; border:0; text-align:left; display:flex; align-items:center; gap:9px; font-size:10px; color:#55717b; } .control-action>span { margin-left:auto; font:10px Consolas,monospace; color:#92a2a8; } .reset-view { border:0; background:none; color:#83989f; font-size:9px; margin:12px 0 0; padding:10px 0; } .control-footnote { font-size:9px; line-height:1.7; color:#92a2a8; margin:15px 0 0; }
+.site-footer { display:flex; align-items:center; justify-content:space-between; min-height:50px; padding:12px 4.6%; border-top:1px solid #d3dce080; color:#84969e; font:8px Consolas,monospace; letter-spacing:.7px; } .footer-divider { padding:0 10px; color:#b9c4c8; }
+dialog { border:1px solid white; width:min(450px,calc(100% - 30px)); border-radius:22px; padding:35px; box-shadow:0 25px 80px #12263b33; color:var(--ink); background:#f4f7f8; } dialog::backdrop { background:#20314170; backdrop-filter:blur(6px); } dialog .eyebrow { margin-bottom:12px; } dialog h2 { font-size:26px; letter-spacing:-1px; font-weight:550; margin:0 0 20px; } dialog ol { padding-left:18px; font-size:12px; color:#627881; line-height:1.7; } dialog li { margin:10px 0; } .dialog-close { position:absolute; right:12px; top:10px; font-size:25px; color:#7b9099; background:none; border:0; padding:5px; } .help-note { font-size:10px; line-height:1.7; color:#8c9ba0; border-top:1px solid #dde5e7; padding-top:17px; margin:20px 0; } dialog .app-button { width:100%; }
+.settings-row { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px 0; font-size:12px; } .settings-row + .settings-row { border-top:1px solid var(--app-line); } .settings-row small { color:var(--app-muted); font-size:10px; } .settings-row input[type=checkbox] { width:19px; height:19px; accent-color:var(--accent); } .settings-row input[type=range] { width:125px; } .settings-about { font-size:11px; line-height:1.7; color:var(--app-muted); }
+.wallpaper-list { display:grid; grid-template-columns:repeat(2,1fr); gap:11px; } .wallpaper-item { padding:0; border:0; border-radius:15px; overflow:hidden; color:var(--app-text); text-align:left; background:var(--app-card); box-shadow:inset 0 0 0 1px var(--app-line); } .wallpaper-thumb { width:100%; height:158px; position:relative; overflow:hidden; } .wallpaper-thumb::after { content:""; position:absolute; width:200px; height:200px; border:24px solid #ffffff24; border-radius:50%; top:32px; left:-80px; transform:rotate(-35deg); } .wallpaper-item>span { display:block; padding:11px 12px; font-size:11px; } .wallpaper-item[aria-pressed=true] { outline:2px solid var(--accent); outline-offset:2px; } .wallpaper-preview { width:100%; height:240px; border-radius:17px; margin:12px 0 16px; position:relative; overflow:hidden; } .wallpaper-preview::after { content:""; position:absolute; inset:30px -130px -200px; border:40px solid #ffffff1c; border-radius:50%; transform:rotate(-35deg); }
+.signal-state { padding:13px; border-radius:12px; background:#1aaf7b12; color:#14916d; font-size:12px; line-height:1.4; margin:12px 0; } .signal-state.blocked { background:#e2535310; color:#c95858; } .signal-state strong { display:block; margin-bottom:5px; } .signal-track { height:160px; border-radius:15px; background:var(--app-card); position:relative; overflow:hidden; margin:15px 0; border:1px solid var(--app-line); } .track-rails { position:absolute; height:25px; left:12px; right:12px; bottom:34px; border-top:2px solid #6b858e; border-bottom:2px solid #6b858e; background:repeating-linear-gradient(90deg,transparent 0 13px,#b9c6cb 13px 16px,transparent 16px 22px); } .mini-train { position:absolute; left:17px; bottom:47px; width:56px; height:29px; background:#158b8e; border-radius:6px 12px 2px 2px; box-shadow:inset 0 -4px #f1c46b; transform:translateX(var(--train-position,0px)); } .mini-train::before { content:"▪ ▪ ▪"; font-size:18px; position:absolute; top:-4px; left:8px; color:#b9eff4; } .mini-train::after { content:"●    ●"; position:absolute; bottom:-10px; left:6px; color:#294953; font-size:13px; white-space:pre; } .mini-signal { position:absolute; left:43%; bottom:59px; height:66px; width:5px; background:#6b858e; } .mini-signal>span { width:20px; height:38px; background:#293d46; border-radius:5px; position:absolute; left:-7px; top:-9px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; } .mini-signal i { width:10px; height:10px; border-radius:50%; background:#f06865; display:block; } .mini-signal i+i { background:#426761; } .signal-track.green .mini-signal i { background:#654449; } .signal-track.green .mini-signal i+i { background:#51dca5; } .signal-log { font:10px/1.7 Consolas,monospace; color:var(--app-muted); padding:0; margin:0; list-style:none; max-height:145px; overflow:auto; } .signal-log li { padding:6px 0; border-bottom:1px solid var(--app-line); } .signal-buttons { display:flex; gap:9px; } .signal-buttons button { flex:1; } .signal-buttons button+button { background:var(--app-card); color:var(--app-text); border:1px solid var(--app-line); }
+@media (min-width:1600px) { .studio { grid-template-columns:290px minmax(400px,1fr) 240px; gap:40px; padding-left:7%; padding-right:7%; } .site-header,.site-footer { padding-left:7%; padding-right:7%; } h1 { font-size:48px; } }
+@media (max-width:1100px) { .studio { grid-template-columns:180px minmax(280px,1fr) 190px; gap:16px; padding-left:3%; padding-right:3%; } .intro-panel h1 { font-size:34px; } .control-panel { padding:17px 14px; } .intro-copy { font-size:11px; } }
+@media (max-width:900px) { .site-header { height:70px; padding:0 22px; } .studio { min-height:670px; height:calc(100dvh - 110px); grid-template-columns:minmax(280px,1fr) 200px; padding:10px 22px; gap:15px; } .intro-panel { display:none; } .site-status { display:none; } .site-footer { min-height:40px; padding:10px 22px; font-size:7px; } }
+@media (max-width:620px) { .site-header { height:62px; padding:0 17px; } .brand { font-size:18px; } .brand-mark { transform:scale(.85) rotate(-10deg); width:25px; } .help-button { font-size:10px; } .help-button span { margin-left:7px; } .studio { display:flex; flex-direction:column; min-height:0; height:auto; padding:0 12px 18px; gap:0; } .stage { width:100%; height:calc(100dvh - 143px); min-height:400px; flex:0 0 auto; } .stage-caption { bottom:0; font-size:8px; } .floor-shadow { bottom:22px; width:180px; } .control-panel { margin-top:16px; width:100%; max-width:430px; display:grid; grid-template-columns:1fr 1fr; gap:10px 20px; padding:15px 18px; border-radius:15px; } .control-top,.control-group,.control-panel hr,.control-footnote,.reset-view,#themeButton { display:none; } .mode-switch { margin:0; grid-column:1/-1; } .mode-switch button { font-size:11px; padding:9px; } .control-action { font-size:11px; padding:5px 0; min-height:33px; } .site-footer { font-size:7px; padding:12px 17px; gap:10px; } .site-footer>span:last-child { display:none; } }
+@media (prefers-reduced-motion:no-preference) { .device,.device-mount { transition:width .55s cubic-bezier(.2,.8,.2,1),transform .35s ease; } .phone-screen { transition:filter .2s; } button { transition:opacity .15s,background .15s; } .app-screen { animation:app-in .22s ease; } @keyframes app-in { from { opacity:0; transform:scale(.97); } to { opacity:1; transform:scale(1); } } }
+.stage { overflow:hidden; }
+.phone-screen.screen-off { background:#040609; }
+.phone-screen.screen-off > * { visibility:hidden; }
+.phone-screen.screen-off .wallpaper-orbit { display:none; }
+
+</style>
+  <style>
+.geometry-app {
+  box-sizing: border-box;
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px 19px 30px;
+  background: var(--app-bg, #f5f5f9);
+  color: var(--app-text, #1e2638);
+  text-align: left;
+}
+.geometry-kicker { margin: 0 0 8px; color: var(--accent, #7460f0); font-size: 10px; letter-spacing: 1.8px; font-weight: 750; }
+.geometry-heading { margin: 0; font-size: 23px; letter-spacing: -.7px; line-height: 1.2; }
+.geometry-intro { margin: 8px 0 20px; color: var(--app-muted, #74798a); font-size: 12px; line-height: 1.5; }
+.geometry-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 4px; border-radius: 13px; background: var(--app-line, #e9eaf0); }
+.geometry-tabs button { appearance: none; border: 0; padding: 10px 3px; margin: 0; border-radius: 10px; background: transparent; color: var(--app-muted, #666c7b); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
+.geometry-tabs button[aria-pressed="true"] { background: var(--app-card, white); color: var(--app-text, #1e2638); box-shadow: 0 2px 5px #0000000c; }
+.geometry-visual { margin: 15px 0; padding: 5px 15px 8px; border: 1px solid var(--app-line, #e7e8ef); border-radius: 18px; background: var(--app-card, white); }
+.geometry-diagram { display: block; width: 100%; height: 142px; color: var(--accent, #7460f0); overflow: visible; }
+.geometry-diagram text { fill: var(--app-text, #1e2638); font: italic 14px Georgia, serif; }
+.geometry-solid { fill: url(#geometry-fill); stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; }
+.geometry-side { fill: #7166ed1f; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; }
+.geometry-edge, .geometry-hidden { fill: none; stroke: currentColor; stroke-width: 1.2; stroke-dasharray: 4 3; opacity: .5; }
+.geometry-dimension { fill: none; stroke: currentColor; stroke-width: 1.2; }
+.geometry-unit-row { display: flex; align-items: center; justify-content: space-between; margin: 0 0 13px; gap: 10px; }
+.geometry-unit-row label { font-size: 12px; font-weight: 600; }
+.geometry-unit { border: 1px solid var(--app-line, #e7e8ef); border-radius: 9px; padding: 8px 10px; background: var(--app-card, white); color: var(--app-text, #1e2638); font: inherit; font-size: 12px; }
+.geometry-fields { display: grid; gap: 10px; }
+.geometry-field { display: grid; gap: 6px; min-width: 0; }
+.geometry-field span { font-size: 11px; color: var(--app-muted, #74798a); }
+.geometry-field input { box-sizing: border-box; width: 100%; min-width: 0; border: 1px solid var(--app-line, #e7e8ef); border-radius: 11px; padding: 12px 13px; background: var(--app-card, white); color: var(--app-text, #1e2638); font: inherit; font-size: 16px; }
+.geometry-field input[aria-invalid="true"] { border-color: #dd4b5d; }
+.geometry-help { margin: 9px 0 13px; font-size: 10px; color: var(--app-muted, #74798a); line-height: 1.5; }
+.geometry-actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.geometry-actions button { margin: 0; border: 0; border-radius: 12px; min-height: 43px; padding: 10px 14px; font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
+.geometry-submit { color: white; background: var(--accent, #7460f0); }
+.geometry-example { color: var(--app-text, #1e2638); background: var(--app-line, #e7e8ef); }
+.geometry-error { margin: 11px 0 0; color: #cf344d; font-size: 12px; line-height: 1.45; }
+.geometry-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin: 16px 0; }
+.geometry-empty { grid-column: 1 / -1; margin: 0; padding: 14px; border: 1px dashed var(--app-line, #e0e1e9); border-radius: 12px; color: var(--app-muted, #74798a); font-size: 11px; line-height: 1.5; text-align: center; }
+.geometry-result-card { display: flex; flex-direction: column; min-width: 0; padding: 13px 11px; background: var(--app-card, white); border: 1px solid var(--app-line, #e7e8ef); border-radius: 14px; }
+.geometry-result-card span { color: var(--app-muted, #74798a); font-size: 10px; }
+.geometry-result-card strong { margin: 7px 0 3px; color: var(--accent, #7460f0); font-size: 20px; font-weight: 700; letter-spacing: -.6px; overflow-wrap: anywhere; }
+.geometry-result-card small { font-size: 10px; color: var(--app-muted, #74798a); }
+.geometry-formulas { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--app-line, #e7e8ef); padding-top: 14px; font-size: 12px; }
+.geometry-formula-label { color: var(--app-muted, #74798a); font-size: 10px; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 1px; }
+.geometry-formulas p { margin: 3px 0 0; color: var(--app-muted, #74798a); font-size: 10px; line-height: 1.5; }
+.geometry-app button:focus-visible, .geometry-app select:focus-visible, .geometry-app input:focus-visible { outline: 3px solid var(--accent, #7460f0); outline-offset: 2px; }
+
+.calc-app { box-sizing: border-box; display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-y: auto; padding: 18px 17px 19px; background: #101115; color: #fafafa; text-align: left; }
+.calc-display { display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; flex: 1 0 112px; min-height: 112px; padding: 12px 5px 18px; border-radius: 10px; }
+.calc-expression { color: #92949e; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; min-height: 16px; margin-bottom: 9px; max-width: 100%; overflow-wrap: anywhere; }
+.calc-value { display: block; width: 100%; font-size: 53px; font-weight: 300; line-height: 1.15; text-align: right; letter-spacing: -2px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.calc-value-small { font-size: 34px; letter-spacing: -1px; }
+.calc-value-tiny { font-size: 27px; letter-spacing: -.8px; }
+.calc-error { margin: 10px 0 0; color: #ffb39f; font-size: 11px; line-height: 1.4; text-align: right; }
+.calc-keypad { display: grid; flex: 0 0 auto; width: 100%; max-width: 300px; align-self: center; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.calc-key { appearance: none; border: 0; margin: 0; min-width: 0; min-height: 53px; padding: 0; aspect-ratio: 1; border-radius: 50%; font: inherit; font-size: 28px; font-weight: 400; color: #fff; background: #292b31; cursor: pointer; transition: background .13s, transform .13s; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.calc-key:hover { background: #3b3e46; }
+.calc-key:active { transform: scale(.93); }
+.calc-utility { background: #a6a7ad; color: #111216; font-size: 23px; font-weight: 500; }
+.calc-utility:hover { background: #d3d4d8; }
+.calc-operator { background: #ff9c32; color: #1a1105; font-size: 32px; }
+.calc-operator:hover { background: #ffbd72; }
+.calc-key-active { background: #fff4e4; color: #ba5e00; }
+.calc-backspace { font-size: 23px; }
+.calc-hint { margin: 15px 0 0; text-align: center; color: #a3a4ad; font-size: 9px; line-height: 1.5; }
+.calc-app button:focus-visible, .calc-display:focus-visible { outline: 3px solid #ffca90; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .calc-key { transition: none; } }
+
+</style>
+  <style>
+.utility { color: var(--app-text); font-family: inherit; font-size: 14px; }
+.utility * { box-sizing: border-box; }
+.utility.app-scroll { padding: 17px 18px 26px; }
+.utility button, .utility input, .utility textarea { font: inherit; }
+.utility button { -webkit-tap-highlight-color: transparent; }
+.utility button:focus-visible, .utility input:focus-visible, .utility textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.utility button:disabled { opacity: .45; cursor: default; }
+.utility-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.utility-eyebrow { margin: 4px 0 7px; color: var(--app-muted); font-size: 9px; font-weight: 750; letter-spacing: 1.5px; }
+.utility-heading { margin: 0; font-size: 27px; font-weight: 750; letter-spacing: -.9px; }
+.utility-caption { margin: 14px 0 12px; font-size: 12px; }
+.utility-footnote { font-size: 11px; line-height: 1.6; margin: 18px 0 0; text-align: center; }
+.utility .utility-text-button { border: 0; padding: 8px 0; background: transparent; color: var(--accent); box-shadow: none; font-size: 13px; }
+.utility .danger-text { color: #e65359; }
+.utility-empty { padding: 32px 16px; text-align: center; }
+.utility-empty h3 { margin: 10px 0; }
+.utility-empty p { line-height: 1.6; }
+.utility-empty-symbol { color: #d8ab37; font-size: 48px; }
+.notes-app .utility-add-note { display: grid; place-items: center; width: 38px; height: 38px; padding: 0; border: none; border-radius: 50%; background: #f6c850; color: #372b09; font-size: 29px; font-weight: 400; box-shadow: none; }
+.notes-list { overflow: hidden; border: 1px solid var(--app-line); border-radius: 15px; background: var(--app-card); }
+.note-row { display: block; width: 100%; text-align: left; color: var(--app-text); background: transparent; border: none; padding: 17px 15px; cursor: pointer; }
+.note-row + .note-row { border-top: 1px solid var(--app-line); }
+.note-row:hover { background: color-mix(in srgb, var(--app-text) 4%, transparent); }
+.note-row-title { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.note-row-preview { display: block; margin-top: 6px; font-size: 12px; color: var(--app-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.note-row-date { color: var(--app-text); }
+.note-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -3px 0 15px; }
+.note-title-input, .note-body-input { display: block; border: 0; width: 100%; padding: 8px 1px; color: var(--app-text); background: transparent; border-radius: 3px; outline-offset: 2px; }
+.utility .note-title-input { font-size: 25px; font-weight: 750; letter-spacing: -.6px; }
+.note-body-input { resize: vertical; min-height: 280px; line-height: 1.75; }
+.note-title-input::placeholder, .note-body-input::placeholder { color: var(--app-muted); opacity: .65; }
+.clock-world { padding: 17px 18px; }
+.clock-world-city { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.clock-world-city strong { font-size: 14px; }
+.clock-world-city span { font-size: 11px; }
+.clock-world-time { margin-top: 12px; font-size: 34px; font-weight: 450; letter-spacing: -1.2px; font-variant-numeric: tabular-nums; }
+.clock-world-date { margin: 4px 0 0; font-size: 11px; }
+.stopwatch-heading { margin-top: 23px; }
+.stopwatch-display { margin: 19px -8px 17px; text-align: center; font-size: clamp(35px, 4.2vw, 45px); font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -1.6px; }
+.stopwatch-controls { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 0 6px 20px; }
+.utility .stopwatch-controls button { border: 0; border-radius: 50%; width: 74px; height: 74px; padding: 6px; font-size: 12px; box-shadow: inset 0 0 0 3px var(--app-bg), 0 0 0 1px var(--app-line); }
+.utility .stopwatch-secondary { background: var(--app-card); color: var(--app-text); }
+.utility .stopwatch-toggle { background: #153b2b; color: #72e8a5; }
+.utility .stopwatch-toggle.is-running { background: #482127; color: #ff8c92; }
+.stopwatch-laps { border-top: 1px solid var(--app-line); }
+.stopwatch-lap { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 1px; border-bottom: 1px solid var(--app-line); font-size: 12px; }
+.stopwatch-lap-value { font-variant-numeric: tabular-nums; }
+.stopwatch-lap-empty { margin: 18px 0; text-align: center; font-size: 12px; }
+.messages-app { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; }
+.message-contact { display: flex; align-items: center; gap: 10px; padding: 13px 17px 11px; }
+.message-avatar { flex: 0 0 38px; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color: #fff; background: linear-gradient(140deg, #8491b4, #465470); font-size: 13px; font-weight: 700; }
+.message-contact strong { display: block; font-size: 13px; }
+.message-contact div > span { display: block; margin-top: 4px; font-size: 10px; }
+.message-local-note { margin: 0; padding: 0 17px 12px; font-size: 10px; text-align: center; border-bottom: 1px solid var(--app-line); }
+.message-history { flex: 1; min-height: 0; overflow-y: auto; padding: 18px 14px 12px; scrollbar-width: thin; overscroll-behavior: contain; }
+.message-row { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 15px; }
+.message-row.from-me { align-items: flex-end; }
+.message-bubble { max-width: 89%; border-radius: 17px 17px 17px 5px; padding: 10px 13px; background: var(--app-card); color: var(--app-text); font-size: 12px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+.from-me .message-bubble { background: #37865e; color: #fff; border-radius: 17px 17px 5px 17px; }
+.message-timestamp { margin: 4px 5px 0; color: var(--app-muted); font-size: 9px; }
+.message-typing { padding: 0 4px; font-size: 11px; }
+.message-compose { display: flex; align-items: center; gap: 8px; padding: 12px 13px 18px; border-top: 1px solid var(--app-line); }
+.utility .message-input { flex: 1; min-width: 0; height: 38px; padding: 8px 12px; border: 1px solid var(--app-line); border-radius: 22px; font-size: 12px; color: var(--app-text); background: var(--app-card); }
+.utility .message-send { display: grid; place-items: center; flex: 0 0 34px; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; color: #fff; background: #37865e; font-size: 24px; box-shadow: none; }
+
+</style>
+</head>
+<body>
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-cube" viewBox="0 0 24 24"><path d="m12 2 9 5v10l-9 5-9-5V7l9-5Zm0 10 9-5M12 12 3 7m9 5v10" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 7h8M8 12h1m6 0h1m-8 5h1m6 0h1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-notes" viewBox="0 0 24 24"><path d="M6 7h12M6 12h12M6 17h9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 5v7l4 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-signal" viewBox="0 0 24 24"><rect x="7" y="1" width="10" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="6" r="2" fill="#ff8782"/><circle cx="12" cy="13" r="2" fill="#a2ffd0"/><path d="M12 18v5" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-photos" viewBox="0 0 24 24"><g opacity=".9"><ellipse cx="12" cy="7" rx="3" ry="6" fill="#fc7476"/><ellipse cx="12" cy="7" rx="3" ry="6" fill="#ffb34b" transform="rotate(45 12 12)"/><ellipse cx="12" cy="7" rx="3" ry="6" fill="#f5d74c" transform="rotate(90 12 12)"/><ellipse cx="12" cy="7" rx="3" ry="6" fill="#8bd67c" transform="rotate(135 12 12)"/><ellipse cx="12" cy="7" rx="3" ry="6" fill="#60cdd5" transform="rotate(180 12 12)"/><ellipse cx="12" cy="7" rx="3" ry="6" fill="#6595ed" transform="rotate(225 12 12)"/><ellipse cx="12" cy="7" rx="3" ry="6" fill="#a688df" transform="rotate(270 12 12)"/><ellipse cx="12" cy="7" rx="3" ry="6" fill="#df86bc" transform="rotate(315 12 12)"/></g><circle cx="12" cy="12" r="2" fill="white"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24"><path d="M22 11c0 5-4.5 9-10 9-1.6 0-3-.3-4.3-.8L3 22l1.3-5C2.2 15.4 1 13.3 1 11 1 6 6 2 12 2s10 4 10 9Z" fill="currentColor"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="m10 2 4 0 1 3 3 1 3-1 2 4-2 2v3l2 2-2 4-3-1-3 1-1 3h-4l-1-3-3-1-3 1-2-4 2-2v-3L1 9l2-4 3 1 3-1 1-3Z" transform="translate(0 -1) scale(1 .96)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="11.5" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3V10Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="15" r="1.3" fill="currentColor"/></symbol>
+    <symbol id="i-fold" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 4v16" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  </defs></svg>
+
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="Pocket Lab, на главный экран"><span class="brand-mark"><span></span><span></span></span><span>Pocket <b>Lab</b></span></a>
+    <span class="site-status"><i></i> Интерактивная модель</span>
+    <button class="help-button" id="helpButton">Как пользоваться <span>↗</span></button>
+  </header>
+
+  <main class="studio">
+    <section class="intro-panel">
+      <p class="eyebrow">ЭКСПЕРИМЕНТ 01 / PHONE</p>
+      <h1>Маленький<br>мир.<br><span>Большие<br>возможности.</span></h1>
+      <p class="intro-copy">Откройте телефон, запустите приложение, измените привычный вид.</p>
+      <div class="intro-line"></div>
+      <div class="feature-note"><span class="feature-number">08</span><span>работающих<br>приложений</span></div>
+      <p class="local-note">Заметки и настройки сохраняются в этом браузере.</p>
+      <div class="shortcuts"><span><kbd>Esc</kbd> на главный</span><span><kbd>L</kbd> блокировка</span></div>
+    </section>
+
+    <section class="stage" id="stage" aria-label="Интерактивный телефон">
+      <div class="floor-shadow"></div>
+      <div class="device-mount" id="deviceMount">
+        <div class="device case-graphite" id="device">
+          <button class="hardware hardware-mute" id="muteButton" aria-label="Переключить звуковые сигналы" title="Звуковые сигналы"></button>
+          <button class="hardware hardware-up" id="volumeUp" aria-label="Увеличить яркость" title="Яркость +"></button>
+          <button class="hardware hardware-down" id="volumeDown" aria-label="Уменьшить яркость" title="Яркость −"></button>
+          <button class="hardware hardware-power" id="powerButton" aria-label="Заблокировать или включить экран" title="Блокировка"></button>
+          <div class="phone-screen wallpaper-aurora" id="phoneScreen">
+            <div class="wallpaper-orbit orbit-one"></div><div class="wallpaper-orbit orbit-two"></div>
+            <div class="screen-crease" aria-hidden="true"></div>
+            <div class="status-bar"><span id="statusTime">09:41</span><span class="status-indicators"><svg width="13" height="11" viewBox="0 0 13 11" aria-hidden="true"><path d="M1 10V8m3 2V6m3 4V3m3 7V0" stroke="currentColor" stroke-width="2"/></svg><svg width="15" height="12" viewBox="0 0 18 14" aria-hidden="true"><path d="M1 4a12 12 0 0 1 16 0M4 7a8 8 0 0 1 10 0M7 10a3 3 0 0 1 4 0" stroke="currentColor" fill="none" stroke-width="1.6"/><circle cx="9" cy="13" r="1" fill="currentColor"/></svg><span class="battery">92</span></span></div>
+            <button class="island" id="islandButton" aria-label="Состояние телефона"><span></span><i></i></button>
+            <section class="lock-screen" id="lockScreen" aria-label="Экран блокировки">
+              <div class="lock-top"><svg width="22" height="22" aria-hidden="true"><use href="#i-lock"/></svg><p id="lockDate">Четверг, 15 октября</p><div id="lockTime">09:41</div></div>
+              <div class="lock-message"><span class="lock-message-icon"><svg width="22" height="22" aria-hidden="true"><use href="#i-cube"/></svg></span><div><b>Pocket Lab</b><p>Ваш маленький мир готов к исследованию.</p></div><span>сейчас</span></div>
+              <button class="unlock-button" id="unlockButton"><span>↑</span> Нажмите или потяните вверх</button>
+            </section>
+            <section class="home-screen" id="homeScreen" aria-label="Рабочий стол" hidden>
+              <div class="home-widgets"><button class="date-widget" data-open="clock"><span id="widgetDay">ЧЕТВЕРГ</span><strong id="widgetDate">15</strong><small>Сегодня</small></button><button class="geometry-widget" data-open="geometry"><svg width="30" height="30" aria-hidden="true"><use href="#i-cube"/></svg><strong>Геометрия</strong><small>Идеи обретают объём</small></button></div>
+              <div class="app-grid" id="appGrid"></div>
+              <p class="home-caption">Небольшие вещи, которые работают.</p>
+              <div class="dock" id="dock"></div>
+            </section>
+            <section class="app-screen" id="appScreen" aria-label="Приложение" hidden><header class="app-header"><button id="appBack" aria-label="На рабочий стол">‹</button><h2 id="appTitle"></h2><button id="appClose" aria-label="Закрыть приложение">×</button></header><div class="app-body" id="appBody"></div></section>
+            <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+            <button class="home-indicator" id="homeIndicator" aria-label="На главный экран"></button>
+          </div>
+        </div>
+      </div>
+      <div class="stage-caption"><span class="caption-dot"></span> <span id="stageCaption">Потяните вверх, чтобы начать</span></div>
+    </section>
+
+    <aside class="control-panel" aria-labelledby="controls-title">
+      <div class="control-top"><h2 id="controls-title">Устройство</h2><span>01</span></div>
+      <div class="mode-switch" role="group" aria-label="Формат устройства"><button data-mode="phone" aria-pressed="true">Телефон</button><button data-mode="wide" aria-pressed="false"><svg width="16" height="16" aria-hidden="true"><use href="#i-fold"/></svg> Развернуть</button></div>
+      <div class="control-group"><label for="angle">Поворот <output id="angleValue">−8°</output></label><input type="range" id="angle" min="-25" max="25" value="-8"></div>
+      <div class="control-group"><label for="brightness">Яркость <output id="brightnessValue">100%</output></label><input type="range" id="brightness" min="40" max="100" value="100"></div>
+      <div class="control-group"><span class="control-label">Цвет корпуса</span><div class="case-colors" role="group" aria-label="Цвет корпуса"><button data-case="graphite" class="swatch graphite" aria-label="Графитовый корпус" aria-pressed="true"></button><button data-case="silver" class="swatch silver" aria-label="Серебристый корпус" aria-pressed="false"></button><button data-case="lilac" class="swatch lilac" aria-label="Сиреневый корпус" aria-pressed="false"></button><span id="caseName">Графит</span></div></div>
+      <hr>
+      <button class="control-action" id="homeDevice"><svg width="17" height="17" aria-hidden="true"><use href="#i-home"/></svg> На главный <span>↗</span></button>
+      <button class="control-action" id="lockDevice"><svg width="17" height="17" aria-hidden="true"><use href="#i-lock"/></svg> Заблокировать <span>L</span></button>
+      <button class="control-action" id="themeButton"><svg width="17" height="17" aria-hidden="true"><use href="#i-sun"/></svg> Тёмные приложения <span id="themeMark">○</span></button>
+      <button class="reset-view" id="resetView">↺ Сбросить вид</button>
+      <p class="control-footnote">Модель интерфейса в браузере. Складной режим даёт приложениям больше места.</p>
+    </aside>
+  </main>
+
+  <footer class="site-footer"><span>POCKET LAB <span class="footer-divider">/</span> сделано для исследования</span><span>HTML · CSS · JavaScript <span class="footer-divider">/</span> 1.0</span></footer>
+  <dialog id="helpDialog"><button class="dialog-close" id="closeHelp" aria-label="Закрыть инструкцию">×</button><p class="eyebrow">БЫСТРЫЙ СТАРТ</p><h2>Ваш телефон на столе.</h2><ol><li>Нажмите на подсказку внизу экрана, чтобы разблокировать телефон.</li><li>Запускайте приложения касанием иконок. Полоска внизу возвращает на рабочий стол.</li><li>Попробуйте развернуть экран, повернуть корпус и изменить обои в «Фото».</li><li>Заметки, локальные сообщения и настройки сохраняются в этом браузере.</li></ol><p class="help-note">Это интерактивная имитация интерфейса. Она работает с браузерными приложениями и не запускает файлы IPA или SwiftUI-проекты.</p><button class="app-button" id="startExploring">Начать исследование</button></dialog>
+  <script>
+(function () {
+  'use strict';
+
+  var solids = {
+    cube: { title: 'Куб', labels: ['Сторона a'], symbols: ['a'], example: ['2'], surface: 'S = 6a²', volume: 'V = a³' },
+    box: { title: 'Брусок', labels: ['Длина a', 'Ширина b', 'Высота c'], symbols: ['a', 'b', 'c'], example: ['4', '3', '2'], surface: 'S = 2(ab + ac + bc)', volume: 'V = abc' },
+    cylinder: { title: 'Цилиндр', labels: ['Радиус r', 'Высота h'], symbols: ['r', 'h'], example: ['2', '5'], surface: 'S = 2πr(r + h)', volume: 'V = πr²h' }
+  };
+  var units = ['мм', 'см', 'м'];
+
+  function parseSize(raw) {
+    var text = String(raw).trim();
+    if (!/^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?$/.test(text)) {
+      throw new Error('Введите число. Дробную часть можно отделить точкой или запятой.');
+    }
+    var value = Number(text.replace(',', '.'));
+    if (!Number.isFinite(value)) throw new Error('Введите конечное число.');
+    if (!(value > 0)) throw new Error('Все размеры должны быть больше нуля.');
+    if (value > 1000000) throw new Error('Размер не может быть больше 1 000 000 выбранных единиц.');
+    return value;
+  }
+
+  function calculateGeometry(kind, rawValues) {
+    var solid = solids[kind];
+    if (!solid || !Array.isArray(rawValues) || rawValues.length !== solid.labels.length) {
+      throw new Error('Заполните все размеры выбранного тела.');
+    }
+    var v = rawValues.map(parseSize);
+    var surface, volume;
+    if (kind === 'cube') {
+      surface = 6 * v[0] * v[0];
+      volume = v[0] * v[0] * v[0];
+    } else if (kind === 'box') {
+      surface = 2 * (v[0] * v[1] + v[0] * v[2] + v[1] * v[2]);
+      volume = v[0] * v[1] * v[2];
+    } else {
+      surface = 2 * Math.PI * v[0] * (v[0] + v[1]);
+      volume = Math.PI * v[0] * v[0] * v[1];
+    }
+    if (!Number.isFinite(surface) || !Number.isFinite(volume) || surface <= 0 || volume <= 0) {
+      throw new Error('Размер слишком мал для вычисления. Выберите более мелкую единицу.');
+    }
+    return { surface: surface, volume: volume };
+  }
+
+  function formatGeometryNumber(value) {
+    if (value !== 0 && (Math.abs(value) < 0.000001 || Math.abs(value) >= 10000000000)) {
+      return value.toExponential(7).replace(/\.?0+e/, 'e').replace('.', ',');
+    }
+    return new Intl.NumberFormat('ru-RU', { maximumSignificantDigits: 10 }).format(value);
+  }
+
+  function initialCalculator() {
+    return { display: '0', stored: null, operator: null, waiting: false, lastOperator: null, lastOperand: null, error: false };
+  }
+
+  function formatCalculatorNumber(value) {
+    if (!Number.isFinite(value)) throw new Error('Результат слишком велик');
+    if (Object.is(value, -0) || value === 0) return '0';
+    return String(Number(value.toPrecision(14)));
+  }
+
+  function applyOperation(left, operator, right) {
+    if (!Number.isFinite(left) || !Number.isFinite(right)) throw new Error('Недопустимое число');
+    var result;
+    if (operator === '+') result = left + right;
+    else if (operator === '-') result = left - right;
+    else if (operator === '*') result = left * right;
+    else if (operator === '/') {
+      if (right === 0) throw new Error('На ноль делить нельзя');
+      result = left / right;
+    } else throw new Error('Неизвестная операция');
+    if (!Number.isFinite(result)) throw new Error('Результат слишком велик');
+    if (result === 0 && left !== 0 && right !== 0 && (operator === '*' || operator === '/')) {
+      throw new Error('Результат слишком мал');
+    }
+    return Number(formatCalculatorNumber(result));
+  }
+
+  // A small state machine keeps all arithmetic independent from the interface.
+  // Operations follow a pocket calculator's left-to-right order; no eval is used.
+  function calculatorStep(previous, action) {
+    var state = Object.assign({}, previous);
+    if (action === 'clear') return initialCalculator();
+    if (state.error) {
+      if (/^\d$/.test(action) || action === 'decimal') state = initialCalculator();
+      else return state;
+    }
+    try {
+      if (/^\d$/.test(action)) {
+        if (state.waiting) {
+          state.display = action;
+          state.waiting = false;
+          if (!state.operator) { state.lastOperator = null; state.lastOperand = null; }
+        } else if (state.display === '0' || state.display === '-0') {
+          state.display = (state.display[0] === '-' ? '-' : '') + action;
+        } else if (state.display.replace(/[^\d]/g, '').length < 14 && !/[eE]/.test(state.display)) {
+          state.display += action;
+        }
+      } else if (action === 'decimal') {
+        if (state.waiting) {
+          state.display = '0.'; state.waiting = false;
+          if (!state.operator) { state.lastOperator = null; state.lastOperand = null; }
+        } else if (!state.display.includes('.') && !/[eE]/.test(state.display)) state.display += '.';
+      } else if (action === 'sign') {
+        state.display = state.display[0] === '-' ? state.display.slice(1) : '-' + state.display;
+        state.waiting = false;
+        if (!state.operator) { state.lastOperator = null; state.lastOperand = null; }
+      } else if (action === 'percent') {
+        var beforePercent = Number(state.display);
+        var percent = beforePercent / 100;
+        if (beforePercent !== 0 && percent === 0) throw new Error('Результат слишком мал');
+        state.display = formatCalculatorNumber(percent);
+        state.waiting = false;
+        if (!state.operator) { state.lastOperator = null; state.lastOperand = null; }
+      } else if (action === 'backspace') {
+        if (!state.waiting && !/[eE]/.test(state.display)) {
+          state.display = state.display.slice(0, -1);
+          if (!state.display || state.display === '-') state.display = '0';
+        }
+      } else if (['+', '-', '*', '/'].includes(action)) {
+        var current = Number(state.display);
+        if (state.operator && !state.waiting) {
+          current = applyOperation(state.stored, state.operator, current);
+          state.display = formatCalculatorNumber(current);
+        }
+        state.stored = current;
+        state.operator = action;
+        state.waiting = true;
+        state.lastOperator = null; state.lastOperand = null;
+      } else if (action === 'equals') {
+        if (state.operator) {
+          var operand = state.waiting ? state.stored : Number(state.display);
+          state.display = formatCalculatorNumber(applyOperation(state.stored, state.operator, operand));
+          state.lastOperator = state.operator; state.lastOperand = operand;
+          state.operator = null; state.stored = null; state.waiting = true;
+        } else if (state.lastOperator) {
+          state.display = formatCalculatorNumber(applyOperation(Number(state.display), state.lastOperator, state.lastOperand));
+          state.waiting = true;
+        }
+      }
+      return state;
+    } catch (error) {
+      state = initialCalculator();
+      state.error = true;
+      state.message = error.message;
+      return state;
+    }
+  }
+
+  function solidDiagram(kind) {
+    var opening = '<svg class="geometry-diagram" viewBox="0 0 280 156" role="img" aria-label="' + solids[kind].title + ': схема размеров"><title>' + solids[kind].title + ': схема размеров</title><defs><linearGradient id="geometry-fill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7c6cff" stop-opacity=".35"/><stop offset="1" stop-color="#40b9fa" stop-opacity=".1"/></linearGradient></defs>';
+    if (kind === 'cylinder') {
+      return opening + '<path class="geometry-solid" d="M82 37V116C82 138 190 138 190 116V37"/><ellipse class="geometry-solid" cx="136" cy="37" rx="54" ry="17"/><path class="geometry-hidden" d="M82 116C82 94 190 94 190 116"/><path class="geometry-dimension" d="M136 37H190M210 37V116M205 37H215M205 116H215"/><circle cx="136" cy="37" r="2.5" fill="currentColor"/><text x="160" y="30">r</text><text x="220" y="83">h</text></svg>';
+    }
+    var cube = kind === 'cube';
+    return opening + '<path class="geometry-solid" d="M76 51L122 24H' + (cube ? '199' : '211') + 'L' + (cube ? '153' : '165') + ' 51V125H76Z"/><path class="geometry-side" d="M' + (cube ? '153' : '165') + ' 51L' + (cube ? '199' : '211') + ' 24V98L' + (cube ? '153' : '165') + ' 125Z"/><path class="geometry-edge" d="M76 51H' + (cube ? '153' : '165') + 'M122 24V98H' + (cube ? '199' : '211') + 'M76 125L122 98"/><path class="geometry-dimension" d="M76 139H' + (cube ? '153' : '165') + 'M76 135V143M' + (cube ? '153' : '165') + ' 135V143"/><text x="' + (cube ? '111' : '118') + '" y="153">a</text><text x="' + (cube ? '183' : '196') + '" y="123">' + (cube ? 'a' : 'b') + '</text><text x="62" y="92">' + (cube ? 'a' : 'c') + '</text></svg>';
+  }
+
+  function renderGeometry(container, api) {
+    var cached = api.load('geometry-v1', {}) || {};
+    var kind = Object.prototype.hasOwnProperty.call(solids, cached.kind) ? cached.kind : 'cube';
+    var unit = units.includes(cached.unit) ? cached.unit : 'см';
+    var values = {};
+    Object.keys(solids).forEach(function (key) {
+      var saved = cached.values && cached.values[key];
+      values[key] = Array.isArray(saved) && saved.length === solids[key].labels.length
+        ? saved.map(function (v) { return typeof v === 'string' ? v.slice(0, 64) : ''; })
+        : solids[key].example.slice();
+    });
+    container.innerHTML = '<section class="geometry-app app-scroll">' +
+      '<p class="geometry-kicker">ПЛОЩАДЬ И ОБЪЁМ</p><h2 class="geometry-heading">Размеры → результат</h2>' +
+      '<p class="geometry-intro">Выберите тело и укажите его размеры.</p>' +
+      '<div class="geometry-tabs" role="group" aria-label="Геометрическое тело">' +
+      Object.keys(solids).map(function (key) { return '<button type="button" data-kind="' + key + '" aria-pressed="false">' + solids[key].title + '</button>'; }).join('') + '</div>' +
+      '<div class="geometry-visual"></div>' +
+      '<form class="geometry-form" novalidate><div class="geometry-unit-row"><label for="geometry-unit">Единицы длины</label>' +
+      '<select id="geometry-unit" class="geometry-unit">' + units.map(function (u) { return '<option>' + u + '</option>'; }).join('') + '</select></div>' +
+      '<div class="geometry-fields"></div><p class="geometry-help">Числа больше 0 и до 1 000 000. Например: 2,5.</p>' +
+      '<div class="geometry-actions"><button type="submit" class="geometry-submit">Рассчитать</button><button type="button" class="geometry-example">Пример</button></div>' +
+      '<p class="geometry-error" role="alert" hidden></p></form>' +
+      '<div class="geometry-results" aria-live="polite"><p class="geometry-empty">Результаты появятся после расчёта.</p></div>' +
+      '<div class="geometry-formulas"><span class="geometry-formula-label">Формулы</span><span class="geometry-surface-formula"></span><span class="geometry-volume-formula"></span><p> S — полная площадь поверхности; V — объём.</p></div></section>';
+    var root = container.querySelector('.geometry-app');
+    var fields = root.querySelector('.geometry-fields');
+    var result = root.querySelector('.geometry-results');
+    var error = root.querySelector('.geometry-error');
+    var unitSelect = root.querySelector('.geometry-unit');
+    unitSelect.value = unit;
+
+    function persist() { api.save('geometry-v1', { kind: kind, unit: unit, values: values }); }
+    function invalidate() {
+      result.innerHTML = '<p class="geometry-empty">Нажмите «Рассчитать» для актуального результата.</p>';
+      error.hidden = true;
+      fields.querySelectorAll('input').forEach(function (input) { input.removeAttribute('aria-invalid'); });
+    }
+    function updateShape() {
+      root.querySelectorAll('[data-kind]').forEach(function (button) { button.setAttribute('aria-pressed', String(button.dataset.kind === kind)); });
+      root.querySelector('.geometry-visual').innerHTML = solidDiagram(kind);
+      root.querySelector('.geometry-surface-formula').textContent = solids[kind].surface;
+      root.querySelector('.geometry-volume-formula').textContent = solids[kind].volume;
+      fields.innerHTML = '';
+      solids[kind].labels.forEach(function (label, index) {
+        var wrap = document.createElement('label');
+        wrap.className = 'geometry-field';
+        var caption = document.createElement('span');
+        caption.textContent = label + ', ' + unit;
+        var input = document.createElement('input');
+        input.type = 'text'; input.inputMode = 'decimal'; input.maxLength = 64;
+        input.autocomplete = 'off'; input.spellcheck = false;
+        input.value = values[kind][index];
+        input.setAttribute('aria-describedby', 'geometry-field-note');
+        input.addEventListener('input', function () {
+          values[kind][index] = input.value;
+          invalidate(); persist();
+        });
+        wrap.appendChild(caption); wrap.appendChild(input); fields.appendChild(wrap);
+      });
+      root.querySelector('.geometry-help').id = 'geometry-field-note';
+    }
+    function calculate() {
+      try {
+        var computed = calculateGeometry(kind, values[kind]);
+        error.hidden = true;
+        fields.querySelectorAll('input').forEach(function (input) { input.removeAttribute('aria-invalid'); });
+        result.innerHTML = '<div class="geometry-result-card"><span>Полная площадь</span><strong></strong><small>' + unit + '²</small></div>' +
+          '<div class="geometry-result-card"><span>Объём</span><strong></strong><small>' + unit + '³</small></div>';
+        var numbers = result.querySelectorAll('strong');
+        numbers[0].textContent = formatGeometryNumber(computed.surface);
+        numbers[1].textContent = formatGeometryNumber(computed.volume);
+      } catch (problem) {
+        result.innerHTML = '<p class="geometry-empty">Проверьте размеры и повторите расчёт.</p>';
+        error.textContent = problem.message; error.hidden = false;
+        var firstInvalid = null;
+        fields.querySelectorAll('input').forEach(function (input) {
+          try { parseSize(input.value); input.removeAttribute('aria-invalid'); }
+          catch (ignored) { input.setAttribute('aria-invalid', 'true'); if (!firstInvalid) firstInvalid = input; }
+        });
+        if (firstInvalid) firstInvalid.focus();
+      }
+    }
+    root.querySelectorAll('[data-kind]').forEach(function (button) {
+      button.addEventListener('click', function () { kind = button.dataset.kind; updateShape(); invalidate(); persist(); });
+    });
+    unitSelect.addEventListener('change', function () { unit = unitSelect.value; updateShape(); invalidate(); persist(); });
+    root.querySelector('form').addEventListener('submit', function (event) { event.preventDefault(); calculate(); });
+    root.querySelector('.geometry-example').addEventListener('click', function () {
+      values[kind] = solids[kind].example.slice(); updateShape(); calculate(); persist();
+    });
+    updateShape();
+    return function () { /* All listeners belong to the removed app subtree. */ };
+  }
+
+  function renderCalculator(container) {
+    var state = initialCalculator();
+    var keys = [
+      ['clear', 'AC', 'Очистить всё', 'utility'], ['sign', '±', 'Сменить знак', 'utility'], ['percent', '%', 'Разделить на сто', 'utility'], ['/', '÷', 'Разделить', 'operator'],
+      ['7', '7', '7', 'number'], ['8', '8', '8', 'number'], ['9', '9', '9', 'number'], ['*', '×', 'Умножить', 'operator'],
+      ['4', '4', '4', 'number'], ['5', '5', '5', 'number'], ['6', '6', '6', 'number'], ['-', '−', 'Вычесть', 'operator'],
+      ['1', '1', '1', 'number'], ['2', '2', '2', 'number'], ['3', '3', '3', 'number'], ['+', '+', 'Сложить', 'operator'],
+      ['backspace', '⌫', 'Удалить последнюю цифру', 'number backspace'], ['0', '0', '0', 'number'], ['decimal', ',', 'Десятичная запятая', 'number'], ['equals', '=', 'Равно', 'operator equals']
+    ];
+    container.innerHTML = '<section class="calc-app" aria-label="Калькулятор">' +
+      '<div class="calc-display" tabindex="0" aria-label="Результат калькулятора"><div class="calc-expression" aria-hidden="true">БЫСТРЫЙ РАСЧЁТ</div>' +
+      '<output class="calc-value" aria-live="polite" aria-atomic="true">0</output><p class="calc-error" role="alert" hidden></p></div>' +
+      '<div class="calc-keypad">' + keys.map(function (key) {
+        return '<button type="button" class="calc-key calc-' + key[3].split(' ').join(' calc-') + '" data-action="' + key[0] + '" aria-label="' + key[2] + '">' + key[1] + '</button>';
+      }).join('') + '</div><p class="calc-hint">По порядку · % делит число на 100</p></section>';
+    var root = container.querySelector('.calc-app');
+    var output = root.querySelector('.calc-value');
+    var expression = root.querySelector('.calc-expression');
+    var error = root.querySelector('.calc-error');
+    var operatorSymbols = { '+': '+', '-': '−', '*': '×', '/': '÷' };
+
+    function update(action) {
+      state = calculatorStep(state, action);
+      output.textContent = state.error ? 'Ошибка' : state.display.replace('.', ',').replace(/^-/,'−');
+      output.classList.toggle('calc-value-small', output.textContent.length > 10);
+      output.classList.toggle('calc-value-tiny', output.textContent.length > 15);
+      error.hidden = !state.error;
+      error.textContent = state.error ? state.message + '. Нажмите AC или введите новое число.' : '';
+      if (state.operator) {
+        expression.textContent = formatCalculatorNumber(state.stored).replace('.', ',') + ' ' + operatorSymbols[state.operator];
+      } else expression.textContent = state.error ? 'ПРОВЕРЬТЕ ВЫРАЖЕНИЕ' : 'БЫСТРЫЙ РАСЧЁТ';
+      root.querySelectorAll('.calc-operator').forEach(function (button) {
+        var active = state.waiting && state.operator === button.dataset.action;
+        button.classList.toggle('calc-key-active', active);
+        if (button.dataset.action !== 'equals') button.setAttribute('aria-pressed', String(active));
+      });
+    }
+    root.querySelectorAll('[data-action]').forEach(function (button) {
+      button.addEventListener('click', function () { update(button.dataset.action); });
+    });
+    function onKey(event) {
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      var action = null;
+      if (/^\d$/.test(event.key) || ['+', '-', '*', '/'].includes(event.key)) action = event.key;
+      else if (event.key === '.' || event.key === ',') action = 'decimal';
+      else if (event.key === '=' || event.key === 'Enter') action = 'equals';
+      else if (event.key === 'Delete') action = 'clear';
+      else if (event.key === 'Backspace') action = 'backspace';
+      else if (event.key === '%') action = 'percent';
+      // Enter on a focused key preserves the button's native activation behavior.
+      if (event.key === 'Enter' && event.target.closest('button')) return;
+      if (action) { event.preventDefault(); update(action); }
+    }
+    root.addEventListener('keydown', onKey);
+    root.querySelector('.calc-display').focus({ preventScroll: true });
+    return function () { root.removeEventListener('keydown', onKey); };
+  }
+
+  window.PhoneMath = {
+    parseSize: parseSize, calculateGeometry: calculateGeometry, formatGeometryNumber: formatGeometryNumber,
+    initialCalculator: initialCalculator, calculatorStep: calculatorStep, applyOperation: applyOperation
+  };
+  window.PhoneApps = window.PhoneApps || {};
+  window.PhoneApps.geometry = { title: 'Геометрия', render: renderGeometry };
+  window.PhoneApps.calculator = { title: 'Калькулятор', render: renderCalculator };
+}());
+
+</script>
+  <script>
+(function () {
+  'use strict';
+
+  const apps = window.PhoneApps = window.PhoneApps || {};
+  const el = (tag, className, text) => {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  };
+  const uid = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const positive = (number, max = 315360000000) => Number.isFinite(number) ? Math.min(max, Math.max(0, number)) : 0;
+  const action = (text, className = '') => {
+    const button = el('button', `app-button ${className}`, text);
+    button.type = 'button';
+    return button;
+  };
+  function storage(api) {
+    let failed = false;
+    return (key, data) => {
+      if (api.save(key, data) === false && !failed) {
+        failed = true;
+        api.toast('Браузер не разрешил сохранение. Данные доступны до закрытия страницы.');
+      }
+    };
+  }
+  function noteDate(stamp) {
+    return new Intl.DateTimeFormat('ru-RU', { timeZone: 'Asia/Qyzylorda', day: 'numeric', month: 'short' }).format(new Date(stamp));
+  }
+
+  apps.notes = {
+    title: 'Заметки',
+    render(container, api) {
+      let events = new AbortController();
+      const on = (node, type, fn) => node.addEventListener(type, fn, { signal: events.signal });
+      const save = storage(api);
+      const initial = [{
+        id: 'welcome-note', title: 'Мой первый проект',
+        body: 'Pocket Lab — учебная имитация телефона.\n\nПопробуй создать заметку, запустить секундомер и отправить сообщение в локальном чате.\n\nНа защите можно рассказать о событиях, массивах, условиях и сохранении данных в localStorage.',
+        updatedAt: Date.now()
+      }];
+      const stored = api.load('notes', initial);
+      let notes = Array.isArray(stored) ? stored.filter(item => item && typeof item.id === 'string' && typeof item.title === 'string' && typeof item.body === 'string').slice(0, 200).map(item => ({
+        id: item.id, title: item.title.slice(0, 120), body: item.body.slice(0, 20000), updatedAt: positive(item.updatedAt, Date.now()) || Date.now()
+      })) : initial;
+      let selected = null;
+      let deleteArmed = false;
+      const root = el('section', 'utility notes-app app-scroll');
+      container.append(root);
+
+      function persist() { save('notes', notes); }
+      function beginView() { events.abort(); events = new AbortController(); root.replaceChildren(); }
+      function list() {
+        selected = null;
+        deleteArmed = false;
+        beginView();
+        const top = el('div', 'utility-title-row');
+        const heading = el('div');
+        heading.append(el('p', 'utility-eyebrow', 'СОХРАНЯЕТСЯ В БРАУЗЕРЕ'), el('h2', 'utility-heading', 'Твои мысли'));
+        const add = action('+', 'utility-add-note');
+        add.setAttribute('aria-label', 'Создать заметку');
+        top.append(heading, add);
+        root.append(top);
+        on(add, 'click', () => {
+          if (notes.length >= 200) { api.toast('Можно сохранить до 200 заметок. Удали ненужные.'); return; }
+          const note = { id: uid(), title: '', body: '', updatedAt: Date.now() };
+          notes.unshift(note); persist(); editor(note.id, true);
+        });
+        const count = el('p', 'muted utility-caption', `${notes.length} ${notes.length === 1 ? 'заметка' : notes.length > 1 && notes.length < 5 ? 'заметки' : 'заметок'}`);
+        root.append(count);
+        if (!notes.length) {
+          const empty = el('div', 'utility-empty app-card');
+          empty.append(el('span', 'utility-empty-symbol', '✎'), el('h3', '', 'Место для идей'), el('p', 'muted', 'Нажми + и запиши первую мысль.'));
+          root.append(empty);
+          return;
+        }
+        const rows = el('div', 'notes-list');
+        [...notes].sort((a, b) => b.updatedAt - a.updatedAt).forEach(note => {
+          const row = el('button', 'note-row');
+          row.type = 'button';
+          row.append(el('strong', 'note-row-title', note.title.trim() || 'Новая заметка'));
+          const preview = el('span', 'note-row-preview');
+          preview.append(el('span', 'note-row-date', noteDate(note.updatedAt)), document.createTextNode(`  ${note.body.replace(/\s+/g, ' ').trim() || 'Пока без текста'}`));
+          row.append(preview);
+          on(row, 'click', () => editor(note.id));
+          rows.append(row);
+        });
+        root.append(rows, el('p', 'utility-footnote muted', 'Нажми на заметку, чтобы изменить её.'));
+      }
+      function editor(id, focusTitle = false) {
+        selected = id;
+        deleteArmed = false;
+        const note = notes.find(item => item.id === id);
+        if (!note) { list(); return; }
+        beginView();
+        const toolbar = el('div', 'note-toolbar');
+        const back = action('‹ Все заметки', 'utility-text-button');
+        const remove = action('Удалить', 'utility-text-button danger-text');
+        toolbar.append(back, remove);
+        const title = el('input', 'note-title-input');
+        title.type = 'text'; title.maxLength = 120; title.placeholder = 'Название'; title.value = note.title;
+        title.setAttribute('aria-label', 'Название заметки');
+        const body = el('textarea', 'note-body-input');
+        body.maxLength = 20000; body.placeholder = 'Запиши что-нибудь…'; body.value = note.body;
+        body.setAttribute('aria-label', 'Текст заметки');
+        const saved = el('p', 'utility-footnote muted', 'Изменения сохраняются автоматически');
+        root.append(toolbar, title, body, saved);
+        on(back, 'click', list);
+        on(remove, 'click', () => {
+          if (!deleteArmed) {
+            deleteArmed = true; remove.textContent = 'Точно удалить?';
+            return;
+          }
+          notes = notes.filter(item => item.id !== selected); persist(); list(); api.toast('Заметка удалена');
+        });
+        function update() {
+          note.title = title.value; note.body = body.value; note.updatedAt = Date.now();
+          deleteArmed = false; remove.textContent = 'Удалить'; persist();
+        }
+        on(title, 'input', update); on(body, 'input', update);
+        if (focusTitle) title.focus({ preventScroll: true });
+      }
+      list();
+      return () => { events.abort(); root.remove(); };
+    }
+  };
+
+  function stopwatchText(ms) {
+    const hundredths = Math.floor(positive(ms) / 10);
+    const seconds = Math.floor(hundredths / 100);
+    const minutes = Math.floor(seconds / 60);
+    return `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')},${String(hundredths % 100).padStart(2, '0')}`;
+  }
+
+  apps.clock = {
+    title: 'Часы',
+    render(container, api) {
+      const events = new AbortController();
+      const on = (node, type, fn) => node.addEventListener(type, fn, { signal: events.signal });
+      const save = storage(api);
+      const stored = api.load('stopwatch', {});
+      let elapsed = positive(stored && stored.elapsedMs);
+      let running = !!(stored && Number.isFinite(stored.runningStartedAt) && stored.runningStartedAt > 0);
+      if (running) elapsed += positive(Date.now() - stored.runningStartedAt);
+      let startedAt = performance.now();
+      let laps = stored && Array.isArray(stored.laps) ? stored.laps.filter(Number.isFinite).map(value => positive(value)).slice(-50) : [];
+      const root = el('section', 'utility clock-app app-scroll');
+      const timePanel = el('div', 'clock-world app-card');
+      const town = el('div', 'clock-world-city');
+      town.append(el('strong', '', 'Кызылорда'), el('span', 'muted', 'UTC +5'));
+      const time = el('div', 'clock-world-time');
+      time.setAttribute('aria-label', 'Текущее время в Кызылорде');
+      const date = el('p', 'muted clock-world-date');
+      timePanel.append(town, time, date);
+      const heading = el('div', 'stopwatch-heading');
+      heading.append(el('p', 'utility-eyebrow', 'КАЖДАЯ СЕКУНДА СЧИТАЕТСЯ'), el('h2', 'utility-heading', 'Секундомер'));
+      const display = el('div', 'stopwatch-display');
+      display.setAttribute('role', 'timer'); display.setAttribute('aria-label', 'Секундомер');
+      const buttons = el('div', 'stopwatch-controls');
+      const secondary = action('Сброс', 'stopwatch-secondary');
+      const toggle = action('Старт', 'stopwatch-toggle');
+      buttons.append(secondary, toggle);
+      const lapList = el('div', 'stopwatch-laps');
+      root.append(timePanel, heading, display, buttons, lapList, el('p', 'utility-footnote muted', 'Секундомер продолжает отсчёт при смене приложения.'));
+      container.append(root);
+      const current = () => elapsed + (running ? positive(performance.now() - startedAt) : 0);
+      function persist() {
+        save('stopwatch', { elapsedMs: current(), runningStartedAt: running ? Date.now() : null, laps });
+      }
+      function update() { display.textContent = stopwatchText(current()); }
+      function controls() {
+        toggle.textContent = running ? 'Пауза' : elapsed > 0 ? 'Продолжить' : 'Старт';
+        toggle.classList.toggle('is-running', running);
+        secondary.textContent = running ? 'Круг' : 'Сброс';
+        secondary.disabled = !running && elapsed === 0 && laps.length === 0;
+      }
+      function renderLaps() {
+        lapList.replaceChildren();
+        if (!laps.length) { lapList.append(el('p', 'stopwatch-lap-empty muted', 'Круги появятся здесь')); return; }
+        laps.map((total, index) => ({ total, index, duration: total - (laps[index - 1] || 0) })).reverse().forEach(lap => {
+          const row = el('div', 'stopwatch-lap');
+          row.append(el('span', '', `Круг ${lap.index + 1}`), el('span', 'stopwatch-lap-value', stopwatchText(lap.duration)));
+          lapList.append(row);
+        });
+      }
+      on(toggle, 'click', () => {
+        if (running) { elapsed = current(); running = false; }
+        else { startedAt = performance.now(); running = true; }
+        update(); controls(); persist();
+      });
+      on(secondary, 'click', () => {
+        if (running) {
+          if (laps.length >= 50) { api.toast('Сохранено 50 кругов. Сбрось секундомер, чтобы начать заново.'); return; }
+          laps.push(current());
+        } else { elapsed = 0; laps = []; }
+        update(); controls(); renderLaps(); persist();
+      });
+      let timeFormatter, dateFormatter;
+      try {
+        timeFormatter = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Asia/Qyzylorda', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        dateFormatter = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Asia/Qyzylorda', weekday: 'long', day: 'numeric', month: 'long' });
+      } catch (_) {
+        timeFormatter = new Intl.DateTimeFormat('ru-RU', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        dateFormatter = new Intl.DateTimeFormat('ru-RU', { timeZone: 'UTC', weekday: 'long', day: 'numeric', month: 'long' });
+      }
+      // Current browsers know Asia/Qyzylorda; UTC+5 is a fallback for incomplete ICU data.
+      const needsOffset = timeFormatter.resolvedOptions().timeZone === 'UTC';
+      function worldTime() {
+        const now = new Date(Date.now() + (needsOffset ? 5 * 60 * 60 * 1000 : 0));
+        time.textContent = timeFormatter.format(now); date.textContent = dateFormatter.format(now);
+      }
+      worldTime(); update(); controls(); renderLaps();
+      const worldTimer = setInterval(worldTime, 1000);
+      const timer = setInterval(() => { if (running) update(); }, 50);
+      return () => { persist(); clearInterval(worldTimer); clearInterval(timer); events.abort(); root.remove(); };
+    }
+  };
+
+  function replyFor(text) {
+    const normalized = text.toLocaleLowerCase('ru-RU');
+    if (/привет|здравств|салам/.test(normalized)) return 'Привет! Это учебный чат Pocket Lab. Попробуй написать «алгоритм» или «проект».';
+    if (/алгоритм|код|программ/.test(normalized)) return 'Алгоритм — это последовательность шагов для решения задачи. Здесь: ввод текста → проверка → добавление в массив → сохранение → показ ответа.';
+    if (/проект|учеб|препод|защит/.test(normalized)) return 'На защите покажи работу приложений и объясни события кнопок, массивы и localStorage. Начни с небольшой функции, которую понимаешь.';
+    if (/спасибо|благодар/.test(normalized)) return 'Пожалуйста! Можно открыть заметки и записать, что получилось.';
+    if (/время|час|секунд/.test(normalized)) return 'В приложении «Часы» есть время Кызылорды и секундомер. Запусти его, вернись на главный экран и проверь отсчёт.';
+    return 'Сообщение появилось только в этом браузере. Этот ответ выбран программой из готовых вариантов — попробуй написать «проект».';
+  }
+
+  apps.messages = {
+    title: 'Сообщения',
+    render(container, api) {
+      const events = new AbortController();
+      const on = (node, type, fn) => node.addEventListener(type, fn, { signal: events.signal });
+      const save = storage(api);
+      const initial = { messages: [{ id: 'welcome-message', from: 'bot', text: 'Привет! Я учебный собеседник. Расскажу, как устроен этот проект. Все сообщения остаются на твоём устройстве.', at: Date.now() }], pending: null };
+      const stored = api.load('messages', initial);
+      let messages = stored && Array.isArray(stored.messages) ? stored.messages.filter(item => item && ['me', 'bot'].includes(item.from) && typeof item.text === 'string').slice(-100).map(item => ({ id: typeof item.id === 'string' ? item.id : uid(), from: item.from, text: item.text.slice(0, 1000), at: positive(item.at, Date.now()) || Date.now() })) : initial.messages;
+      let pending = stored && stored.pending && typeof stored.pending.text === 'string' && Number.isFinite(stored.pending.at) ? { text: stored.pending.text.slice(0, 1000), at: stored.pending.at } : null;
+      let replyTimer = null;
+      const root = el('section', 'utility messages-app');
+      const contact = el('div', 'message-contact');
+      const avatar = el('span', 'message-avatar', 'PL');
+      avatar.setAttribute('aria-hidden', 'true');
+      const name = el('div');
+      name.append(el('strong', '', 'Учебный собеседник'), el('span', 'muted', 'Локальный вымышленный чат'));
+      contact.append(avatar, name);
+      const history = el('div', 'message-history');
+      history.setAttribute('role', 'log'); history.setAttribute('aria-label', 'История сообщений'); history.setAttribute('aria-live', 'polite');
+      const form = el('form', 'message-compose');
+      const input = el('input', 'app-input message-input');
+      input.type = 'text'; input.maxLength = 1000; input.placeholder = 'Сообщение'; input.autocomplete = 'off'; input.setAttribute('aria-label', 'Новое сообщение');
+      const send = action('↑', 'message-send'); send.type = 'submit'; send.setAttribute('aria-label', 'Отправить сообщение');
+      form.append(input, send);
+      root.append(contact, el('p', 'message-local-note muted', 'Без сети • ответы из готовых фраз'), history, form);
+      container.append(root);
+      function persist() { save('messages', { messages, pending }); }
+      function controls() { send.disabled = !input.value.trim() || !!pending; }
+      function renderHistory() {
+        history.replaceChildren();
+        messages.forEach(message => {
+          const row = el('div', `message-row ${message.from === 'me' ? 'from-me' : 'from-bot'}`);
+          const bubble = el('div', 'message-bubble', message.text);
+          const timestamp = el('span', 'message-timestamp', new Intl.DateTimeFormat('ru-RU', { timeZone: 'Asia/Qyzylorda', hour: '2-digit', minute: '2-digit' }).format(new Date(message.at)));
+          row.append(bubble, timestamp); history.append(row);
+        });
+        if (pending) {
+          const typing = el('p', 'message-typing muted', 'Собеседник печатает…');
+          typing.setAttribute('role', 'status'); history.append(typing);
+        }
+        history.scrollTop = history.scrollHeight;
+      }
+      function receive() {
+        replyTimer = null;
+        if (!pending) return;
+        messages.push({ id: uid(), from: 'bot', text: pending.text, at: Date.now() });
+        messages = messages.slice(-100); pending = null;
+        persist(); renderHistory(); controls();
+      }
+      function scheduleReply() {
+        if (!pending) return;
+        const delay = Math.max(0, Math.min(900, pending.at - Date.now()));
+        replyTimer = setTimeout(receive, delay);
+      }
+      on(form, 'submit', event => {
+        event.preventDefault();
+        const text = input.value.trim();
+        if (!text || pending) return;
+        messages.push({ id: uid(), from: 'me', text, at: Date.now() });
+        messages = messages.slice(-100);
+        pending = { text: replyFor(text), at: Date.now() + 750 };
+        input.value = ''; persist(); renderHistory(); controls(); scheduleReply();
+      });
+      on(input, 'input', controls);
+      renderHistory(); controls(); scheduleReply();
+      return () => { if (replyTimer !== null) clearTimeout(replyTimer); events.abort(); root.remove(); };
+    }
+  };
+})();
+
+</script>
+  <script>
+(function () {
+  'use strict';
+  var byId = function (id) { return document.getElementById(id); };
+  var registry = window.PhoneApps = window.PhoneApps || {};
+  var storagePrefix = 'pocket-lab:';
+  var defaults = { mode: 'phone', angle: -8, brightness: 100, bodyColor: 'graphite', wallpaper: 'aurora', dark: false, sound: false };
+  var currentApp = null, lastApp = null, appCleanup = null;
+  var locked = true, screenAwake = true, toastTimer = null;
+  var audioContext = null, audioGeneration = 0;
+  var storageNoticeShown = false;
+  var memoryCache = new Map();
+
+  function copyValue(value) {
+    try { return JSON.parse(JSON.stringify(value)); }
+    catch (_) { return value; }
+  }
+
+  function load(key, fallback) {
+    if (memoryCache.has(key)) return copyValue(memoryCache.get(key));
+    try {
+      var raw = localStorage.getItem(storagePrefix + key);
+      var value = raw === null ? fallback : JSON.parse(raw);
+      memoryCache.set(key, copyValue(value));
+      return copyValue(value);
+    } catch (_) {
+      memoryCache.set(key, copyValue(fallback));
+      return copyValue(fallback);
+    }
+  }
+  function save(key, value) {
+    // Данные переживают переключение приложений даже при запрете localStorage.
+    memoryCache.set(key, copyValue(value));
+    try { localStorage.setItem(storagePrefix + key, JSON.stringify(value)); return true; }
+    catch (_) {
+      if (!storageNoticeShown) { storageNoticeShown = true; toast('Браузер не разрешил сохранение. Изменения доступны до закрытия страницы.'); }
+      return false;
+    }
+  }
+  function clamp(value, min, max, fallback) {
+    return typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback;
+  }
+  function validSettings(value) {
+    value = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    return {
+      mode: value.mode === 'wide' ? 'wide' : 'phone',
+      angle: clamp(value.angle, -25, 25, -8),
+      brightness: clamp(value.brightness, 40, 100, 100),
+      bodyColor: ['graphite', 'silver', 'lilac'].includes(value.bodyColor) ? value.bodyColor : 'graphite',
+      wallpaper: ['aurora', 'dusk', 'forest'].includes(value.wallpaper) ? value.wallpaper : 'aurora',
+      dark: value.dark === true,
+      sound: value.sound === true
+    };
+  }
+  var settings = validSettings(load('settings-v1', defaults));
+
+  function toast(message) {
+    window.clearTimeout(toastTimer);
+    byId('toast').textContent = message;
+    byId('toast').hidden = false;
+    toastTimer = window.setTimeout(function () { byId('toast').hidden = true; }, 3000);
+  }
+  function fitDevice() {
+    var stage = byId('stage');
+    var width = settings.mode === 'wide' ? 650 : 340;
+    var scale = Math.min(1, (stage.clientWidth - 34) / width, (stage.clientHeight - 44) / 714);
+    byId('deviceMount').style.setProperty('--device-scale', Math.max(0.2, scale).toFixed(4));
+  }
+  function applySettings(patch, persist) {
+    settings = validSettings(Object.assign({}, settings, patch || {}));
+    byId('deviceMount').style.width = (settings.mode === 'wide' ? 650 : 340) + 'px';
+    byId('device').className = 'device case-' + settings.bodyColor + (settings.mode === 'wide' ? ' wide' : '');
+    byId('device').style.setProperty('--angle', settings.angle + 'deg');
+    byId('phoneScreen').style.setProperty('--brightness', settings.brightness / 100);
+    ['aurora', 'dusk', 'forest'].forEach(function (name) { byId('phoneScreen').classList.toggle('wallpaper-' + name, settings.wallpaper === name); });
+    byId('phoneScreen').classList.toggle('dark', settings.dark);
+    byId('angle').value = settings.angle;
+    byId('angleValue').textContent = settings.angle + '°';
+    byId('brightness').value = settings.brightness;
+    byId('brightnessValue').textContent = settings.brightness + '%';
+    byId('themeMark').textContent = settings.dark ? '●' : '○';
+    byId('themeButton').setAttribute('aria-pressed', String(settings.dark));
+    byId('muteButton').setAttribute('aria-pressed', String(settings.sound));
+    byId('caseName').textContent = { graphite: 'Графит', silver: 'Серебро', lilac: 'Сирень' }[settings.bodyColor];
+    document.querySelectorAll('[data-mode]').forEach(function (button) { button.setAttribute('aria-pressed', String(button.dataset.mode === settings.mode)); });
+    document.querySelectorAll('[data-case]').forEach(function (button) { button.setAttribute('aria-pressed', String(button.dataset.case === settings.bodyColor)); });
+    fitDevice();
+    if (persist !== false) save('settings-v1', settings);
+    document.dispatchEvent(new CustomEvent('pocket:settings', { detail: Object.assign({}, settings) }));
+  }
+  async function clickTone() {
+    if (!settings.sound) return;
+    var generation = audioGeneration;
+    try {
+      var Audio = window.AudioContext || window.webkitAudioContext;
+      if (!Audio) return;
+      if (!audioContext) audioContext = new Audio();
+      await audioContext.resume();
+      if (!settings.sound || generation !== audioGeneration) return;
+      var oscillator = audioContext.createOscillator(), gain = audioContext.createGain();
+      var start = audioContext.currentTime;
+      oscillator.frequency.value = 660;
+      gain.gain.setValueAtTime(0.025, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.075);
+      oscillator.connect(gain); gain.connect(audioContext.destination);
+      oscillator.onended = function () { oscillator.disconnect(); gain.disconnect(); };
+      oscillator.start(); oscillator.stop(start + 0.08);
+    } catch (_) { /* Звуки необязательны; интерфейс работает без аудио. */ }
+  }
+  function disposeApp() {
+    if (typeof appCleanup === 'function') appCleanup();
+    appCleanup = null;
+    byId('appBody').replaceChildren();
+    currentApp = null;
+  }
+  function syncScreens() {
+    byId('phoneScreen').classList.toggle('screen-off', !screenAwake);
+    byId('lockScreen').hidden = !locked;
+    byId('homeScreen').hidden = locked || currentApp !== null;
+    byId('appScreen').hidden = locked || currentApp === null;
+    byId('phoneScreen').classList.toggle('app-open', !locked && currentApp !== null);
+    byId('stageCaption').textContent = !screenAwake ? 'Нажмите боковую кнопку, чтобы включить экран' : locked ? 'Потяните вверх, чтобы начать' : currentApp ? 'Полоска внизу возвращает на рабочий стол' : 'Выберите приложение на экране';
+  }
+  function goHome() {
+    disposeApp(); locked = false; screenAwake = true; syncScreens();
+    var target = lastApp && byId('appGrid').querySelector('[data-open="' + lastApp + '"]');
+    if (target) target.focus({ preventScroll: true });
+  }
+  function lockDevice() {
+    disposeApp(); locked = true; screenAwake = true; syncScreens();
+    byId('unlockButton').focus({ preventScroll: true });
+  }
+  function unlock() { if (!screenAwake) screenAwake = true; goHome(); clickTone(); }
+  function openApp(id) {
+    var app = registry[id];
+    if (!app || typeof app.render !== 'function') { toast('Приложение пока недоступно.'); return; }
+    disposeApp(); currentApp = id; lastApp = id; locked = false; screenAwake = true;
+    byId('appTitle').textContent = app.title;
+    syncScreens();
+    appCleanup = app.render(byId('appBody'), { load: load, save: save, toast: toast, openApp: openApp, goHome: goHome });
+    window.requestAnimationFrame(function () { if (currentApp === id && !byId('appBody').contains(document.activeElement)) byId('appBack').focus({ preventScroll: true }); });
+    clickTone();
+  }
+
+  registry.photos = {
+    title: 'Фото и обои',
+    render: function (container) {
+      var names = { aurora: 'Северное сияние', dusk: 'Тёплый вечер', forest: 'Тихий лес' };
+      var selected = settings.wallpaper;
+      container.innerHTML = '<div class="app-scroll"><h3 class="app-page-title">Ваши цвета</h3><p class="app-subtitle">Три абстрактных пейзажа для рабочего стола.</p><div class="wallpaper-list"></div><div class="wallpaper-preview"></div><button class="app-button" style="width:100%">Установить обои</button><p class="app-subtitle" style="margin-top:14px">Обои созданы из градиентов и доступны без интернета.</p></div>';
+      var list = container.querySelector('.wallpaper-list'), preview = container.querySelector('.wallpaper-preview');
+      function update() {
+        preview.className = 'wallpaper-preview wallpaper-' + selected;
+        preview.setAttribute('role', 'img'); preview.setAttribute('aria-label', 'Предпросмотр обоев: ' + names[selected]);
+        list.querySelectorAll('button').forEach(function (button) { button.setAttribute('aria-pressed', String(button.dataset.wallpaper === selected)); });
+      }
+      Object.keys(names).forEach(function (name) {
+        var button = document.createElement('button'); button.className = 'wallpaper-item'; button.dataset.wallpaper = name;
+        button.innerHTML = '<div class="wallpaper-thumb wallpaper-' + name + '"></div><span>' + names[name] + '</span>';
+        button.addEventListener('click', function () { selected = name; update(); }); list.append(button);
+      });
+      container.querySelector('.app-button').addEventListener('click', function () { applySettings({ wallpaper: selected }); toast('Обои «' + names[selected] + '» установлены.'); });
+      update();
+      return function () {};
+    }
+  };
+  registry.settings = {
+    title: 'Настройки',
+    render: function (container) {
+      container.innerHTML = '<div class="app-scroll"><h3 class="app-page-title">Настройки</h3><p class="app-subtitle">Сделайте этот маленький мир своим.</p><div class="app-card"><label class="settings-row"><span>Тёмное оформление</span><input id="phoneDark" type="checkbox"></label><label class="settings-row"><span>Звуки нажатий</span><input id="phoneSound" type="checkbox"></label><label class="settings-row"><span>Яркость<br><small id="phoneBrightnessLabel"></small></span><input id="phoneBrightness" type="range" min="40" max="100"></label></div><div class="app-card"><div class="settings-row"><span>Формат</span><small id="phoneFormat"></small></div><div class="settings-row"><span>Батарея модели</span><small>92%</small></div><div class="settings-row"><span>Версия</span><small>Pocket Lab 1.0</small></div></div><button class="app-button" id="openWallpapers" style="width:100%">Выбрать обои</button><div class="app-card" style="margin-top:15px"><p class="settings-about">Это браузерная имитация телефона. Яркость, сигналы и формат меняются внутри модели. Заметки и сообщения хранятся локально в этом браузере.</p></div></div>';
+      var dark = container.querySelector('#phoneDark'), sound = container.querySelector('#phoneSound'), brightness = container.querySelector('#phoneBrightness');
+      function refresh() {
+        dark.checked = settings.dark; sound.checked = settings.sound;
+        if (document.activeElement !== brightness) brightness.value = settings.brightness;
+        container.querySelector('#phoneBrightnessLabel').textContent = settings.brightness + '%';
+        container.querySelector('#phoneFormat').textContent = settings.mode === 'wide' ? 'Развёрнутый экран' : 'Телефон';
+      }
+      dark.addEventListener('change', function () { applySettings({ dark: dark.checked }); });
+      sound.addEventListener('change', function () { audioGeneration++; applySettings({ sound: sound.checked }); if (sound.checked) clickTone(); });
+      brightness.addEventListener('input', function () { applySettings({ brightness: Number(brightness.value) }); });
+      container.querySelector('#openWallpapers').addEventListener('click', function () { openApp('photos'); });
+      document.addEventListener('pocket:settings', refresh); refresh();
+      return function () { document.removeEventListener('pocket:settings', refresh); };
+    }
+  };
+  registry.signal = {
+    title: 'Светофор',
+    render: function (container) {
+      var stored = load('signal-v1', {});
+      stored = stored && typeof stored === 'object' ? stored : {};
+      var free = typeof stored.free === 'boolean' ? stored.free : true;
+      var requested = stored.requested === true, moving = false;
+      var position = clamp(stored.position, 0, 1, 0), previous = performance.now();
+      var journal = ['Учебный участок готов. Движение задаётся внутри модели.'];
+      container.innerHTML = '<div class="app-scroll"><h3 class="app-page-title">Два условия. Один путь.</h3><p class="app-subtitle">Учебная модель из проекта №034.</p><div class="app-card"><label class="settings-row"><span>Путь свободен</span><input type="checkbox" id="trackFree"></label><label class="settings-row"><span>Проезд запрошен</span><input type="checkbox" id="passageRequested"></label></div><div class="signal-track"><div class="track-rails"></div><div class="mini-signal"><span><i></i><i></i></span></div><div class="mini-train"></div></div><div class="signal-state"><strong></strong><span></span></div><div class="signal-buttons"><button class="app-button" id="trainStart">Начать</button><button class="app-button" id="trainReset">Сбросить</button></div><div class="app-card" style="margin-top:15px"><p class="app-label">Журнал событий</p><ol class="signal-log"></ol></div></div>';
+      var freeInput = container.querySelector('#trackFree'), requestInput = container.querySelector('#passageRequested');
+      var track = container.querySelector('.signal-track'), train = container.querySelector('.mini-train');
+      var startButton = container.querySelector('#trainStart'), result = container.querySelector('.signal-state');
+      function persist() { save('signal-v1', { free: free, requested: requested, position: position }); }
+      function addLog(text) {
+        journal.unshift(text); journal = journal.slice(0, 40);
+        var log = container.querySelector('.signal-log'); log.replaceChildren();
+        journal.forEach(function (entry) { var li = document.createElement('li'); li.textContent = entry; log.append(li); });
+      }
+      function update() {
+        var allowed = free && requested;
+        freeInput.checked = free; requestInput.checked = requested;
+        track.classList.toggle('green', allowed); result.classList.toggle('blocked', !allowed);
+        result.querySelector('strong').textContent = allowed ? 'Зелёный · движение разрешено' : 'Красный · движение запрещено';
+        result.querySelector('span').textContent = !free ? 'Участок занят. Поезд должен ждать.' : !requested ? 'Путь свободен. Нужен запрос на проезд.' : moving ? 'Поезд движется · ' + Math.round(position * 100) + '%' : position >= 1 ? 'Поезд прибыл. Можно начать заново.' : 'Оба условия выполнены. Нажмите «' + (position > 0 ? 'Продолжить' : 'Начать') + '».';
+        train.style.setProperty('--train-position', (Math.max(0, track.clientWidth - 92) * position) + 'px');
+        startButton.disabled = !allowed || moving;
+        startButton.textContent = moving ? 'В пути…' : position >= 1 ? 'Ещё раз' : position > 0 ? 'Продолжить' : 'Начать';
+      }
+      function changed(text) {
+        if (!free || !requested) { if (moving) text += ' Поезд остановлен.'; moving = false; }
+        addLog(text); update(); persist();
+      }
+      freeInput.addEventListener('change', function () { free = freeInput.checked; changed(free ? 'Путь освобождён.' : 'Путь занят.'); });
+      requestInput.addEventListener('change', function () { requested = requestInput.checked; changed(requested ? 'Проезд запрошен.' : 'Запрос снят.'); });
+      startButton.addEventListener('click', function () {
+        if (!(free && requested) || moving) return;
+        if (position >= 1) position = 0;
+        moving = true; previous = performance.now(); addLog('Поезд начал движение.'); update();
+      });
+      container.querySelector('#trainReset').addEventListener('click', function () {
+        free = true; requested = false; moving = false; position = 0; journal = [];
+        addLog('Сброс. Путь свободен, запроса нет.'); update(); persist();
+      });
+      var interval = window.setInterval(function () {
+        var now = performance.now();
+        if (moving && free && requested) {
+          position = Math.min(1, position + (now - previous) / 6000);
+          if (position >= 1) { moving = false; addLog('Поезд прибыл. Маршрут завершён.'); persist(); }
+          update();
+        }
+        previous = now;
+      }, 60);
+      var observer = new ResizeObserver(update); observer.observe(track);
+      addLog(journal.shift()); update();
+      return function () { window.clearInterval(interval); observer.disconnect(); moving = false; persist(); };
+    }
+  };
+
+  var apps = [
+    { id: 'geometry', title: 'Геометрия', icon: 'cube' },
+    { id: 'calculator', title: 'Калькулятор', icon: 'calc' },
+    { id: 'notes', title: 'Заметки', icon: 'notes' },
+    { id: 'clock', title: 'Часы', icon: 'clock' },
+    { id: 'signal', title: 'Светофор', icon: 'signal' },
+    { id: 'photos', title: 'Фото', icon: 'photos' },
+    { id: 'messages', title: 'Сообщения', icon: 'message' },
+    { id: 'settings', title: 'Настройки', icon: 'settings' }
+  ];
+  function makeTile(app) {
+    var button = document.createElement('button'); button.className = 'app-tile'; button.dataset.open = app.id;
+    button.setAttribute('aria-label', 'Открыть: ' + app.title);
+    button.innerHTML = '<span class="app-icon icon-' + app.id + '"><svg aria-hidden="true"><use href="#i-' + app.icon + '"/></svg></span><span class="tile-label">' + app.title + '</span>';
+    return button;
+  }
+  apps.forEach(function (app) { byId('appGrid').append(makeTile(app)); });
+  ['messages', 'notes', 'calculator', 'settings'].forEach(function (id) { byId('dock').append(makeTile(apps.find(function (app) { return app.id === id; }))); });
+  document.querySelectorAll('[data-open]').forEach(function (button) { button.addEventListener('click', function () { openApp(button.dataset.open); }); });
+  document.querySelectorAll('[data-mode]').forEach(function (button) { button.addEventListener('click', function () { applySettings({ mode: button.dataset.mode }); }); });
+  document.querySelectorAll('[data-case]').forEach(function (button) { button.addEventListener('click', function () { applySettings({ bodyColor: button.dataset.case }); }); });
+  byId('angle').addEventListener('input', function () { applySettings({ angle: Number(this.value) }); });
+  byId('brightness').addEventListener('input', function () { applySettings({ brightness: Number(this.value) }); });
+  byId('themeButton').addEventListener('click', function () { applySettings({ dark: !settings.dark }); });
+  byId('resetView').addEventListener('click', function () { applySettings({ mode: 'phone', angle: -8, brightness: 100, bodyColor: 'graphite' }); toast('Вид устройства сброшен. Ваши данные сохранены.'); });
+  byId('homeDevice').addEventListener('click', goHome);
+  byId('lockDevice').addEventListener('click', lockDevice);
+  byId('unlockButton').addEventListener('click', unlock);
+  byId('homeIndicator').addEventListener('click', function () { if (locked) unlock(); else goHome(); });
+  byId('appBack').addEventListener('click', goHome); byId('appClose').addEventListener('click', goHome);
+  byId('powerButton').addEventListener('click', function () { if (!locked) lockDevice(); else { screenAwake = !screenAwake; syncScreens(); } });
+  byId('muteButton').addEventListener('click', function () { audioGeneration++; applySettings({ sound: !settings.sound }); toast(settings.sound ? 'Звуковые сигналы включены' : 'Без звука'); clickTone(); });
+  byId('volumeUp').addEventListener('click', function () { applySettings({ brightness: Math.min(100, settings.brightness + 10) }); toast('Яркость ' + settings.brightness + '%'); });
+  byId('volumeDown').addEventListener('click', function () { applySettings({ brightness: Math.max(40, settings.brightness - 10) }); toast('Яркость ' + settings.brightness + '%'); });
+  byId('islandButton').addEventListener('click', function () { toast('Pocket Lab · батарея модели 92% · ' + (settings.sound ? 'звук включён' : 'без звука')); });
+  document.querySelector('.brand').addEventListener('click', function (event) { event.preventDefault(); goHome(); });
+  var swipeY = null;
+  byId('unlockButton').addEventListener('pointerdown', function (event) { swipeY = event.clientY; this.setPointerCapture(event.pointerId); });
+  byId('unlockButton').addEventListener('pointerup', function (event) { if (swipeY !== null && swipeY - event.clientY > 25) unlock(); swipeY = null; });
+  byId('unlockButton').addEventListener('pointercancel', function () { swipeY = null; });
+
+  var dialog = byId('helpDialog');
+  byId('helpButton').addEventListener('click', function () { dialog.showModal(); });
+  byId('closeHelp').addEventListener('click', function () { dialog.close(); });
+  byId('startExploring').addEventListener('click', function () { dialog.close(); unlock(); });
+  dialog.addEventListener('click', function (event) { if (event.target === dialog) dialog.close(); });
+  document.addEventListener('keydown', function (event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    var editable = event.target instanceof HTMLElement && (event.target.matches('input, textarea, select') || event.target.isContentEditable);
+    if (event.key === 'Escape' && !dialog.open) { event.preventDefault(); if (!locked) goHome(); else if (!screenAwake) { screenAwake = true; syncScreens(); } }
+    else if (event.key.toLowerCase() === 'l' && !editable && !dialog.open) { event.preventDefault(); lockDevice(); }
+  });
+  function updateTime() {
+    var now = new Date();
+    var time = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Asia/Qyzylorda', hour: '2-digit', minute: '2-digit', hour12: false }).format(now);
+    var date = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Asia/Qyzylorda', weekday: 'long', day: 'numeric', month: 'long' }).format(now);
+    byId('statusTime').textContent = time; byId('lockTime').textContent = time;
+    byId('lockDate').textContent = date.charAt(0).toUpperCase() + date.slice(1);
+    byId('widgetDay').textContent = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Asia/Qyzylorda', weekday: 'long' }).format(now).toUpperCase();
+    byId('widgetDate').textContent = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Asia/Qyzylorda', day: 'numeric' }).format(now);
+  }
+  var fitObserver = new ResizeObserver(fitDevice); fitObserver.observe(byId('stage'));
+  applySettings({}, false); updateTime(); syncScreens();
+  var timeTimer = window.setInterval(updateTime, 1000);
+  window.addEventListener('pagehide', function (event) {
+    // При возврате из кэша браузер сам возобновляет таймеры и текущее приложение.
+    if (event.persisted) return;
+    disposeApp(); window.clearInterval(timeTimer); window.clearTimeout(toastTimer); fitObserver.disconnect();
+  });
+})();
+
+</script>
+</body>
+</html>

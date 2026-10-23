@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.wrangler/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+.env
+.env.*
+!.env.example
+renderer-*.png
+Emberfall.html
+public/Emberfall.html
+Emberfall3D.html
+public/Emberfall3D.html
+worker/index.js
+worker/package.json
